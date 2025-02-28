@@ -8,9 +8,7 @@ import reportWebVitals from './reportWebVitals';
 window.Telegram = window.Telegram || {};
 window.Telegram.WebApp = window.Telegram.WebApp || {};
 
-const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
-);
+const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <App />
