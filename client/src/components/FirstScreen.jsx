@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import GameButton from "./GameButton";
 
@@ -7,6 +7,22 @@ import GameButton from "./GameButton";
  */
 const FirstScreen = () => {
   const navigate = useNavigate();
+  const [userName, setUserName] = useState('');
+  
+  // Получаем данные из Telegram WebApp
+  useEffect(() => {
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+      // Меняем тему приложения в зависимости от темы Telegram
+      document.documentElement.classList.toggle('dark', tg.colorScheme === 'dark');
+      
+      // Если есть данные о пользователе, получаем его имя
+      if (tg.initDataUnsafe?.user) {
+        const { first_name, last_name } = tg.initDataUnsafe.user;
+        setUserName(first_name + (last_name ? ` ${last_name}` : ''));
+      }
+    }
+  }, []);
 
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-[#4B6CB7] to-[#182848] flex flex-col items-center justify-center p-6">
@@ -25,6 +41,13 @@ const FirstScreen = () => {
             <span className="text-2xl text-red-500/80">♦</span>
           </div>
         </div>
+
+        {/* Приветствие пользователя, если есть */}
+        {userName && (
+          <div className="mb-6 text-center">
+            <p className="text-white/80 text-lg">Привет, {userName}!</p>
+          </div>
+        )}
 
         {/* Кнопки */}
         <div className="space-y-6">
