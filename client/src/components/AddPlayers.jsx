@@ -1,68 +1,89 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { WebApp } from '@twa-dev/sdk';
+import { useNavigate } from 'react-router-dom';
+import { useWebSocket } from '../hooks/useWebSocket';
+import { WebAppProvider } from '@twa-dev/sdk/react';
 import { createRoomInFirebase, updateRoomPlayers, subscribeToRoom } from '../firebase/firebase';
 
 const AddPlayers = () => {
   const navigate = useNavigate();
-  const location = useLocation();
+  const { createRoom, error } = useWebSocket();
+  const [isCreatingRoom, setIsCreatingRoom] = useState(false);
   const [roomCode, setRoomCode] = useState('');
   const [players, setPlayers] = useState([]);
   const [showCopiedToast, setShowCopiedToast] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [showDeleteZone, setShowDeleteZone] = useState(false);
 
-  // Инициализация комнаты при первой загрузке
   useEffect(() => {
     const initializeRoom = async () => {
       try {
-        // Получаем данные о пользователе из Telegram
-        const user = WebApp.initDataUnsafe?.user;
-        if (!user) throw new Error('No user data available');
+        if (!window.Telegram?.WebApp) {
+          throw new Error('Telegram WebApp is not available');
+        }
 
-        // Создаем начальные данные комнаты
-        const roomData = {
-          gameSettings: location.state?.gameSettings || {},
-          host: {
-            id: user.id.toString(),
-            name: user.first_name + (user.last_name ? ` ${user.last_name}` : ''),
-            avatar: user.photo_url
-          },
-          players: [{
-            id: user.id.toString(),
-            name: user.first_name + (user.last_name ? ` ${user.last_name}` : ''),
-            avatar: user.photo_url,
-            isHost: true
-          }],
-          status: 'waiting',
-          maxPlayers: 6
+        const tg = window.Telegram.WebApp;
+        const userData = tg.initDataUnsafe?.user || {
+          id: 'test_user_id',
+          first_name: 'Test',
+          username: 'test_user'
         };
 
-        // Создаем комнату в Firebase
-        const roomId = await createRoomInFirebase(roomData);
-        setRoomCode(roomId);
-        setPlayers(roomData.players);
+        if (!isCreatingRoom && !roomCode) {
+          setIsCreatingRoom(true);
+          try {
+            const host = {
+              id: userData.id.toString(),
+              name: userData.first_name || userData.username || 'Anonymous',
+              username: userData.username,
+              avatar: userData.photo_url
+            };
 
-        // Подписываемся на обновления комнаты
-        const unsubscribe = subscribeToRoom(roomId, (roomData) => {
-          setPlayers(roomData.players);
-        });
+            const result = await createRoom(host, {
+              speed: 'normal',
+              showDealer: true
+            });
 
-        return () => unsubscribe();
-      } catch (error) {
-        console.error('Error initializing room:', error);
-        // Показываем ошибку пользователю через Telegram
-        WebApp.showAlert('Error creating room. Please try again.');
+            if (result && result.roomId) {
+              setRoomCode(result.roomId);
+              setPlayers([{
+                id: host.id,
+                name: host.name,
+                avatar: host.avatar,
+                isHost: true
+              }]);
+            } else {
+              throw new Error('Invalid room data received');
+            }
+          } catch (err) {
+            const errorMessage = err.message || 'Unknown error';
+            if (tg.showPopup) {
+              tg.showPopup({
+                title: 'Error',
+                message: 'Failed to create room: ' + errorMessage,
+                buttons: [{ type: 'ok' }]
+              });
+            } else {
+              alert('Failed to create room: ' + errorMessage);
+            }
+          } finally {
+            setIsCreatingRoom(false);
+          }
+        }
+      } catch (err) {
+        alert('Failed to initialize: ' + (err.message || 'Unknown error'));
       }
     };
 
     initializeRoom();
-  }, [location.state]);
+  }, [createRoom, isCreatingRoom, roomCode]);
 
   const handleCopyCode = () => {
-    navigator.clipboard.writeText(roomCode);
-    setShowCopiedToast(true);
-    setTimeout(() => setShowCopiedToast(false), 2000);
+    if (roomCode) {
+      navigator.clipboard.writeText(roomCode).then(() => {
+        setShowCopiedToast(true);
+        setTimeout(() => setShowCopiedToast(false), 2000);
+      });
+    }
   };
 
   const handleTelegramShare = () => {
@@ -139,6 +160,18 @@ const AddPlayers = () => {
       document.removeEventListener('touchmove', handleTouchMove);
     };
   }, [selectedPlayer]);
+
+  if (!isCreatingRoom && error) {
+    return <div className="flex items-center justify-center min-h-screen bg-primary-dark text-white">
+      Error: {error}
+    </div>;
+  }
+
+  if (isCreatingRoom) {
+    return <div className="flex items-center justify-center min-h-screen bg-primary-dark text-white">
+      Creating room...
+    </div>;
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-primary-dark text-white p-4">
