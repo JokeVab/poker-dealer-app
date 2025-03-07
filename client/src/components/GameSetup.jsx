@@ -88,7 +88,7 @@ const GameSetup = () => {
         </div>
 
         {/* Time/Hands Selection */}
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex items-end gap-4 mb-8">
           <div className="flex-1">
             <div className="text-white/80 mb-2">Time</div>
             <button
@@ -102,8 +102,8 @@ const GameSetup = () => {
             </button>
           </div>
 
-          <div className="w-12 h-10 flex items-center justify-center">
-            <span className="text-white/80 text-3xl">
+          <div className="h-10 flex items-center justify-center">
+            <span className="text-white/80 text-3xl leading-none">
               {timeMode === 'Time' ? '⏱' : '🂠'}
             </span>
           </div>
@@ -153,10 +153,8 @@ const GameSetup = () => {
         <div className="flex items-center justify-between">
           <button
             onClick={handleBack}
-            className="h-10 px-6 rounded-xl bg-white/10 backdrop-blur-sm
-                     border border-white/30 flex items-center justify-center
-                     text-white font-semibold transition-all duration-300
-                     hover:bg-white/20 active:scale-95 active:bg-white/30 touch-none"
+            className="text-white/60 transition-colors duration-300
+                     hover:text-white active:text-white/40"
           >
             Back
           </button>
@@ -167,10 +165,8 @@ const GameSetup = () => {
 
           <button
             onClick={handleNext}
-            className="h-10 px-6 rounded-xl bg-blue-500/80 backdrop-blur-sm
-                     border border-blue-500/30 flex items-center justify-center
-                     text-white font-semibold transition-all duration-300
-                     hover:bg-blue-500 active:scale-95 active:bg-blue-600 touch-none"
+            className="text-blue-400 transition-colors duration-300
+                     hover:text-blue-300 active:text-blue-500"
           >
             Next
           </button>
