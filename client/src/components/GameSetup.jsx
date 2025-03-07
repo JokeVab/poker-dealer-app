@@ -98,7 +98,7 @@ const GameSetup = () => {
             </button>
           </div>
 
-          <div className="w-12 h-12 flex items-center justify-center">
+          <div className="w-12 h-12 flex items-center justify-center mt-2">
             <span className="text-white/80 text-3xl">
               {timeMode === 'Time' ? '⏱' : '🂠'}
             </span>
