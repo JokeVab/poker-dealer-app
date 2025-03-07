@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useWebSocket } from '../hooks/useWebSocket';
-import { createRoomInFirebase, updateRoomPlayers, subscribeToRoom } from '../firebase/firebase';
+import { createRoomInFirebase, updateRoomPlayers } from '../firebase/firebase';
 
 const AddPlayers = () => {
   const navigate = useNavigate();
-  const { createRoom, error } = useWebSocket();
   const [isCreatingRoom, setIsCreatingRoom] = useState(false);
   const [roomCode, setRoomCode] = useState('');
   const [players, setPlayers] = useState([]);
   const [showCopiedToast, setShowCopiedToast] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [showDeleteZone, setShowDeleteZone] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const initializeRoom = async () => {
@@ -33,27 +32,34 @@ const AddPlayers = () => {
             const host = {
               id: userData.id.toString(),
               name: userData.first_name || userData.username || 'Anonymous',
-              username: userData.username,
-              avatar: userData.photo_url
+              username: userData.username || '',
+              avatar: userData.photo_url || null
             };
 
-            const result = await createRoom(host, {
-              speed: 'normal',
-              showDealer: true
-            });
-
-            if (result && result.roomId) {
-              setRoomCode(result.roomId);
-              setPlayers([{
+            // Создаем начальные данные комнаты
+            const roomData = {
+              gameSettings: {
+                speed: 'normal',
+                showDealer: true
+              },
+              host: host,
+              players: [{
                 id: host.id,
                 name: host.name,
                 avatar: host.avatar,
                 isHost: true
-              }]);
-            } else {
-              throw new Error('Invalid room data received');
-            }
+              }],
+              status: 'waiting',
+              maxPlayers: 6
+            };
+
+            // Создаем комнату в Firebase
+            const roomId = await createRoomInFirebase(roomData);
+            setRoomCode(roomId);
+            setPlayers(roomData.players);
+            setIsCreatingRoom(false);
           } catch (err) {
+            console.error('Error creating room:', err);
             const errorMessage = err.message || 'Unknown error';
             if (tg.showPopup) {
               tg.showPopup({
@@ -64,17 +70,19 @@ const AddPlayers = () => {
             } else {
               alert('Failed to create room: ' + errorMessage);
             }
-          } finally {
             setIsCreatingRoom(false);
           }
         }
       } catch (err) {
+        console.error('Initialization error:', err);
+        setError(err.message || 'Unknown error');
         alert('Failed to initialize: ' + (err.message || 'Unknown error'));
+        setIsCreatingRoom(false);
       }
     };
 
     initializeRoom();
-  }, [createRoom, isCreatingRoom, roomCode]);
+  }, [isCreatingRoom, roomCode]);
 
   const handleCopyCode = () => {
     if (roomCode) {
@@ -165,7 +173,7 @@ const AddPlayers = () => {
     };
   }, [selectedPlayer]);
 
-  if (!isCreatingRoom && error) {
+  if (error) {
     return <div className="flex items-center justify-center min-h-screen bg-primary-dark text-white">
       Error: {error}
     </div>;
