@@ -60,7 +60,7 @@ const FirstScreen = () => {
             Join Game
           </GameButton>
           <GameButton 
-            onClick={() => navigate('/create-room')}
+            onClick={() => navigate('/game-setup')}
             className="from-blue-500/30 to-blue-500/10
                       hover:from-blue-500/40 hover:to-blue-500/20
                       border-blue-500/30"
