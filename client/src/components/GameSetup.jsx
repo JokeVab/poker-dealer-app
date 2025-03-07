@@ -24,8 +24,15 @@ const GameSetup = () => {
 
   // Обработчик для кнопки "Далее"
   const handleNext = () => {
-    // TODO: Создание покерной комнаты с выбранными параметрами
-    navigate('/create-room'); // Временно, нужно будет изменить на следующий шаг
+    const gameSettings = {
+      gameType,
+      gameSpeed,
+      timeMode,
+      dealerDisplay,
+      speedSettings: speedSettings[gameSpeed]
+    };
+    
+    navigate('/add-players', { state: { gameSettings } });
   };
 
   // Обработчик для кнопки Cash

@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, addDoc, doc, getDoc } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
@@ -46,6 +46,25 @@ export const getRoomById = async (roomId) => {
     console.error('Error getting room:', error);
     throw error;
   }
+};
+
+export const updateRoomPlayers = async (roomId, players) => {
+  try {
+    const roomRef = doc(db, 'rooms', roomId);
+    await updateDoc(roomRef, { players });
+  } catch (error) {
+    console.error('Error updating room players:', error);
+    throw error;
+  }
+};
+
+export const subscribeToRoom = (roomId, callback) => {
+  const roomRef = doc(db, 'rooms', roomId);
+  return onSnapshot(roomRef, (doc) => {
+    if (doc.exists()) {
+      callback({ id: doc.id, ...doc.data() });
+    }
+  });
 };
 
 export { db, storage }; 

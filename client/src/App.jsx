@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import FirstScreen from './components/FirstScreen';
 import CreateRoom from './components/CreateRoom';
 import GameSetup from './components/GameSetup';
+import AddPlayers from './components/AddPlayers';
 
 function App() {
   // Инициализация Telegram WebApp
@@ -38,6 +39,7 @@ function App() {
       <Routes>
         <Route path="/" element={<FirstScreen />} />
         <Route path="/game-setup" element={<GameSetup />} />
+        <Route path="/add-players" element={<AddPlayers />} />
         <Route path="/create-room" element={<CreateRoom />} />
         <Route path="/join-game" element={<div>Join Game Component (coming soon)</div>} />
       </Routes>
