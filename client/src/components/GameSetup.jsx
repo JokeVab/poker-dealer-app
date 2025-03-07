@@ -28,10 +28,24 @@ const GameSetup = () => {
     navigate('/create-room'); // Временно, нужно будет изменить на следующий шаг
   };
 
+  // Обработчик для кнопки Cash
+  const handleCashClick = () => {
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+      tg.showPopup({
+        title: 'Coming Soon',
+        message: 'Cash game mode will be available in the next update!',
+        buttons: [{ type: 'close' }]
+      });
+    } else {
+      alert('Cash game mode will be available in the next update!');
+    }
+  };
+
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-[#4B6CB7] to-[#182848] flex flex-col items-center justify-center p-6">
       <div className="bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-xl 
-                    rounded-3xl p-8 w-full max-w-[400px]
+                    rounded-3xl p-8 w-full max-w-[400px] mb-24
                     shadow-[inset_0_0_30px_rgba(255,255,255,0.1),0_10px_40px_rgba(0,0,0,0.2)]
                     border border-white/30">
         
@@ -39,7 +53,7 @@ const GameSetup = () => {
         <div className="flex gap-2 mb-8">
           <button
             className={`flex-1 py-3 px-6 rounded-xl backdrop-blur-sm border border-white/30
-                      ${gameType === 'SnG' ? 'bg-white/20' : 'bg-white/5'} 
+                      ${gameType === 'SnG' ? 'bg-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'bg-white/5'} 
                       text-white font-semibold transition-all duration-300`}
             onClick={() => setGameType('SnG')}
           >
@@ -47,9 +61,9 @@ const GameSetup = () => {
           </button>
           <button
             className="flex-1 py-3 px-6 rounded-xl backdrop-blur-sm border border-white/30
-                     bg-white/5 text-white/30 font-semibold cursor-not-allowed
-                     filter blur-[0.3px]"
-            disabled
+                     bg-white/5 text-white/30 font-semibold cursor-pointer
+                     hover:bg-white/10 transition-all duration-300"
+            onClick={handleCashClick}
           >
             Cash
           </button>
@@ -61,7 +75,7 @@ const GameSetup = () => {
             <button
               key={speed}
               className={`flex-1 py-3 px-2 rounded-xl backdrop-blur-sm border border-white/30
-                        ${gameSpeed === speed ? 'bg-white/20' : 'bg-white/5'} 
+                        ${gameSpeed === speed ? 'bg-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'bg-white/5'} 
                         text-white font-semibold transition-all duration-300`}
               onClick={() => setGameSpeed(speed)}
             >
@@ -75,30 +89,30 @@ const GameSetup = () => {
           <div className="flex-1 mr-4">
             <div className="text-white/80 mb-2">Time</div>
             <button
-              className={`w-full py-2 px-4 rounded-xl backdrop-blur-sm border border-white/30
-                        ${timeMode === 'Time' ? 'bg-white/20' : 'bg-white/5'} 
-                        text-white font-semibold transition-all duration-300`}
+              className={`w-full py-3 px-4 rounded-xl backdrop-blur-sm border border-white/30
+                        ${timeMode === 'Time' ? 'bg-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'bg-white/5'} 
+                        text-white font-semibold transition-all duration-300 relative`}
               onClick={() => setTimeMode('Time')}
             >
-              {speedSettings[gameSpeed].time}m
+              <div className="flex items-center justify-center gap-2">
+                <span className="text-lg">⏱️</span>
+                <span>{speedSettings[gameSpeed].time}m</span>
+              </div>
             </button>
-          </div>
-          
-          <div className="w-12 h-12 flex items-center justify-center">
-            <div className="w-8 h-8 rounded-full border-2 border-white/30 flex items-center justify-center">
-              <span className="text-white/80 text-xl">⌛</span>
-            </div>
           </div>
 
           <div className="flex-1 ml-4">
             <div className="text-white/80 mb-2">Hands</div>
             <button
-              className={`w-full py-2 px-4 rounded-xl backdrop-blur-sm border border-white/30
-                        ${timeMode === 'Hands' ? 'bg-white/20' : 'bg-white/5'} 
-                        text-white font-semibold transition-all duration-300`}
+              className={`w-full py-3 px-4 rounded-xl backdrop-blur-sm border border-white/30
+                        ${timeMode === 'Hands' ? 'bg-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'bg-white/5'} 
+                        text-white font-semibold transition-all duration-300 relative`}
               onClick={() => setTimeMode('Hands')}
             >
-              {speedSettings[gameSpeed].hands}
+              <div className="flex items-center justify-center gap-2">
+                <span className="text-lg">🎴</span>
+                <span>{speedSettings[gameSpeed].hands}</span>
+              </div>
             </button>
           </div>
         </div>
@@ -109,7 +123,7 @@ const GameSetup = () => {
           <div className="flex gap-2">
             <button
               className={`flex-1 py-3 px-6 rounded-xl backdrop-blur-sm border border-white/30
-                        ${dealerDisplay === 'Individual' ? 'bg-white/20' : 'bg-white/5'} 
+                        ${dealerDisplay === 'Individual' ? 'bg-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'bg-white/5'} 
                         text-white font-semibold transition-all duration-300`}
               onClick={() => setDealerDisplay('Individual')}
             >
@@ -117,7 +131,7 @@ const GameSetup = () => {
             </button>
             <button
               className={`flex-1 py-3 px-6 rounded-xl backdrop-blur-sm border border-white/30
-                        ${dealerDisplay === 'Table' ? 'bg-white/20' : 'bg-white/5'} 
+                        ${dealerDisplay === 'Table' ? 'bg-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'bg-white/5'} 
                         text-white font-semibold transition-all duration-300`}
               onClick={() => setDealerDisplay('Table')}
             >
@@ -128,13 +142,13 @@ const GameSetup = () => {
       </div>
 
       {/* Navigation Buttons */}
-      <div className="absolute bottom-6 left-0 right-0 px-6">
+      <div className="fixed bottom-6 left-0 right-0 px-6">
         <div className="flex items-center justify-between">
           <button
             onClick={handleBack}
-            className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm
+            className="w-14 h-14 rounded-full bg-white/10 backdrop-blur-sm
                      border border-white/30 flex items-center justify-center
-                     text-white transition-all duration-300
+                     text-white text-2xl transition-all duration-300
                      hover:bg-white/20"
           >
             ←
@@ -146,9 +160,9 @@ const GameSetup = () => {
 
           <button
             onClick={handleNext}
-            className="w-12 h-12 rounded-full bg-blue-500/80 backdrop-blur-sm
+            className="w-14 h-14 rounded-full bg-blue-500/80 backdrop-blur-sm
                      border border-blue-500/30 flex items-center justify-center
-                     text-white transition-all duration-300
+                     text-white text-2xl transition-all duration-300
                      hover:bg-blue-500"
           >
             →
