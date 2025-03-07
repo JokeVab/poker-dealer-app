@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useWebSocket } from '../hooks/useWebSocket';
-import { WebAppProvider } from '@twa-dev/sdk/react';
 import { createRoomInFirebase, updateRoomPlayers, subscribeToRoom } from '../firebase/firebase';
 
 const AddPlayers = () => {
@@ -87,9 +86,11 @@ const AddPlayers = () => {
   };
 
   const handleTelegramShare = () => {
+    if (!window.Telegram?.WebApp) return;
+    
     const inviteLink = `https://t.me/your_bot_name?start=${roomCode}`;
     const text = 'Join my poker game! Click the link to start playing!';
-    WebApp.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(text)}`);
+    window.Telegram.WebApp.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(text)}`);
   };
 
   const calculatePosition = (index, totalPlayers) => {
@@ -132,14 +133,17 @@ const AddPlayers = () => {
         clientY >= rect.top &&
         clientY <= rect.bottom
       ) {
-        // Удаляем игрока и обновляем в Firebase
         const updatedPlayers = players.filter(p => p.id !== selectedPlayer.id);
         setPlayers(updatedPlayers);
         try {
           await updateRoomPlayers(roomCode, updatedPlayers);
         } catch (error) {
           console.error('Error removing player:', error);
-          WebApp.showAlert('Error removing player. Please try again.');
+          if (window.Telegram?.WebApp?.showAlert) {
+            window.Telegram.WebApp.showAlert('Error removing player. Please try again.');
+          } else {
+            alert('Error removing player. Please try again.');
+          }
         }
       }
     }
