@@ -54,7 +54,8 @@ const GameSetup = () => {
           <button
             className={`flex-1 h-10 rounded-xl backdrop-blur-sm border border-white/30
                       ${gameType === 'SnG' ? 'bg-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'bg-white/5'} 
-                      text-white font-semibold transition-all duration-300`}
+                      text-white font-semibold transition-all duration-300
+                      active:scale-95 active:bg-blue-500/50 touch-none`}
             onClick={() => setGameType('SnG')}
           >
             SnG
@@ -62,7 +63,8 @@ const GameSetup = () => {
           <button
             className="flex-1 h-10 rounded-xl backdrop-blur-sm border border-white/30
                      bg-white/5 text-white/30 font-semibold cursor-pointer
-                     hover:bg-white/10 transition-all duration-300"
+                     hover:bg-white/10 transition-all duration-300
+                     active:scale-95 active:bg-white/20 touch-none"
             onClick={handleCashClick}
           >
             Cash
@@ -76,7 +78,8 @@ const GameSetup = () => {
               key={speed}
               className={`flex-1 h-10 rounded-xl backdrop-blur-sm border border-white/30
                         ${gameSpeed === speed ? 'bg-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'bg-white/5'} 
-                        text-white font-semibold transition-all duration-300`}
+                        text-white font-semibold transition-all duration-300
+                        active:scale-95 active:bg-blue-500/50 touch-none`}
               onClick={() => setGameSpeed(speed)}
             >
               {speed}
@@ -91,14 +94,15 @@ const GameSetup = () => {
             <button
               className={`w-full h-10 rounded-xl backdrop-blur-sm border border-white/30
                         ${timeMode === 'Time' ? 'bg-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'bg-white/5'} 
-                        text-white font-semibold transition-all duration-300`}
+                        text-white font-semibold transition-all duration-300
+                        active:scale-95 active:bg-blue-500/50 touch-none`}
               onClick={() => setTimeMode('Time')}
             >
               {speedSettings[gameSpeed].time}m
             </button>
           </div>
 
-          <div className="w-12 h-12 flex items-center justify-center mt-2">
+          <div className="w-12 h-10 flex items-center justify-center">
             <span className="text-white/80 text-3xl">
               {timeMode === 'Time' ? '⏱' : '🂠'}
             </span>
@@ -109,7 +113,8 @@ const GameSetup = () => {
             <button
               className={`w-full h-10 rounded-xl backdrop-blur-sm border border-white/30
                         ${timeMode === 'Hands' ? 'bg-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'bg-white/5'} 
-                        text-white font-semibold transition-all duration-300`}
+                        text-white font-semibold transition-all duration-300
+                        active:scale-95 active:bg-blue-500/50 touch-none`}
               onClick={() => setTimeMode('Hands')}
             >
               {speedSettings[gameSpeed].hands}
@@ -124,7 +129,8 @@ const GameSetup = () => {
             <button
               className={`flex-1 h-10 rounded-xl backdrop-blur-sm border border-white/30
                         ${dealerDisplay === 'Individual' ? 'bg-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'bg-white/5'} 
-                        text-white font-semibold transition-all duration-300`}
+                        text-white font-semibold transition-all duration-300
+                        active:scale-95 active:bg-blue-500/50 touch-none`}
               onClick={() => setDealerDisplay('Individual')}
             >
               Individual
@@ -132,7 +138,8 @@ const GameSetup = () => {
             <button
               className={`flex-1 h-10 rounded-xl backdrop-blur-sm border border-white/30
                         ${dealerDisplay === 'Table' ? 'bg-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'bg-white/5'} 
-                        text-white font-semibold transition-all duration-300`}
+                        text-white font-semibold transition-all duration-300
+                        active:scale-95 active:bg-blue-500/50 touch-none`}
               onClick={() => setDealerDisplay('Table')}
             >
               Table
@@ -144,33 +151,29 @@ const GameSetup = () => {
       {/* Navigation Buttons */}
       <div className="fixed bottom-6 left-0 right-0 px-6">
         <div className="flex items-center justify-between">
-          <div className="flex items-center justify-center">
-            <button
-              onClick={handleBack}
-              className="w-14 h-14 rounded-full bg-white/10 backdrop-blur-sm
-                       border border-white/30 flex items-center justify-center
-                       text-white text-2xl transition-all duration-300
-                       hover:bg-white/20"
-            >
-              ←
-            </button>
-          </div>
+          <button
+            onClick={handleBack}
+            className="h-10 px-6 rounded-xl bg-white/10 backdrop-blur-sm
+                     border border-white/30 flex items-center justify-center
+                     text-white font-semibold transition-all duration-300
+                     hover:bg-white/20 active:scale-95 active:bg-white/30 touch-none"
+          >
+            Back
+          </button>
           
           <div className="text-white/60 text-center text-sm px-4">
             Set your game preferences, choose card display, and proceed to the next step!
           </div>
 
-          <div className="flex items-center justify-center">
-            <button
-              onClick={handleNext}
-              className="w-14 h-14 rounded-full bg-blue-500/80 backdrop-blur-sm
-                       border border-blue-500/30 flex items-center justify-center
-                       text-white text-2xl transition-all duration-300
-                       hover:bg-blue-500"
-            >
-              →
-            </button>
-          </div>
+          <button
+            onClick={handleNext}
+            className="h-10 px-6 rounded-xl bg-blue-500/80 backdrop-blur-sm
+                     border border-blue-500/30 flex items-center justify-center
+                     text-white font-semibold transition-all duration-300
+                     hover:bg-blue-500 active:scale-95 active:bg-blue-600 touch-none"
+          >
+            Next
+          </button>
         </div>
       </div>
     </div>
