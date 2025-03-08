@@ -47,6 +47,7 @@ function App() {
         <Route path="/join-room" element={<JoinRoom />} />
         <Route path="/role-selection" element={<RoleSelection />} />
         <Route path="/poker-room" element={<PokerRoom />} />
+        <Route path="/room" element={<PokerRoom />} />
       </Routes>
     </Router>
   );

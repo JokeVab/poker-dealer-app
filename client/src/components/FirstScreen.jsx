@@ -65,14 +65,15 @@ const FirstScreen = () => {
 
         {/* Кнопки */}
         <div className="space-y-6">
-          <GameButton 
-            onClick={() => navigate('/join-game')}
-            className="from-emerald-500/30 to-emerald-500/10 
-                      hover:from-emerald-500/40 hover:to-emerald-500/20
-                      border-emerald-500/30"
+          <button
+            onClick={() => navigate('/join-room')}
+            className="w-full py-3 px-4 rounded-lg text-white text-lg font-medium
+                      bg-gradient-to-r from-blue-700 to-blue-800 border border-blue-600
+                      hover:from-blue-600 hover:to-blue-700
+                      transition-colors duration-300 mb-3"
           >
             Join Game
-          </GameButton>
+          </button>
           <GameButton 
             onClick={() => navigate('/game-setup')}
             className="from-blue-500/30 to-blue-500/10

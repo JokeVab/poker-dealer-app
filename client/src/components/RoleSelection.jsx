@@ -20,9 +20,12 @@ const RoleSelection = () => {
   // Проверка на iOS устройство
   useEffect(() => {
     setIsIosDevice(isIOS());
+    console.log('RoleSelection: Инициализация компонента');
+    console.log('RoleSelection: Данные комнаты:', { roomCode, roomInfo });
     
     // Если нет кода комнаты или информации о комнате, возвращаем на главный экран
     if (!roomCode || !roomInfo) {
+      console.log('RoleSelection: Отсутствуют данные комнаты, возвращаемся на главный экран');
       navigate('/');
     }
   }, []);
@@ -36,28 +39,35 @@ const RoleSelection = () => {
     
     setIsLoading(true);
     setError(null);
+    console.log(`RoleSelection: Выбрана роль: ${role}`);
     
     try {
       // Проверяем, есть ли уже дилер в комнате, если выбрана роль дилера
       if (role === 'dealer' && roomInfo.dealer) {
+        console.log('RoleSelection: Дилер уже присутствует в комнате');
         throw new Error('A dealer has already joined this room');
       }
       
       // Обновляем роль пользователя в комнате
+      console.log(`RoleSelection: Отправляем запрос на обновление роли: ${role}`);
       const result = await updateUserRole(roomCode, role);
       
       if (!result) {
+        console.log('RoleSelection: Не удалось обновить роль');
         throw new Error(`Failed to join as ${role}`);
       }
       
+      console.log('RoleSelection: Роль успешно обновлена:', result);
+      
       // Если роль дилера, показываем инструкцию для поворота устройства
       if (role === 'dealer') {
-        // Показываем инструкцию для поворота устройства (можно реализовать как модальное окно)
+        console.log('RoleSelection: Показываем уведомление о повороте устройства для дилера');
         alert('Please rotate your device to landscape mode for the best experience as a dealer');
       }
       
       // Перенаправляем на экран комнаты с выбранной ролью
-      navigate('/room', { state: { roomCode, role, roomInfo } });
+      console.log('RoleSelection: Переходим в покерную комнату');
+      navigate('/poker-room', { state: { roomCode, role, roomInfo } });
       
     } catch (err) {
       console.error('Error selecting role:', err);
@@ -80,9 +90,9 @@ const RoleSelection = () => {
   } : {};
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-[#4B6CB7] to-[#182848] flex flex-col items-center justify-center p-6">
+    <div className="relative min-h-screen bg-gradient-to-b from-indigo-900 via-blue-900 to-gray-900 flex flex-col items-center justify-center p-6">
       <div 
-        className="bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-xl
+        className="bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-xl
                  rounded-3xl p-8 w-full max-w-[400px]
                  shadow-[inset_0_0_30px_rgba(255,255,255,0.1),0_10px_40px_rgba(0,0,0,0.2)]
                  border border-white/30"
