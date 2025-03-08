@@ -280,7 +280,7 @@ const AddPlayers = () => {
       {/* Покерный стол */}
       <div 
         ref={tableRef}
-        className="relative mx-auto mt-12 mb-8 flex-shrink-0"
+        className="relative mx-auto mt-12 mb-12 flex-shrink-0"
         style={{
           width: `${tableSize.width}px`,
           height: `${tableSize.height}px`,
@@ -380,19 +380,26 @@ const AddPlayers = () => {
       </div>
 
       {/* Секция приглашения игроков */}
-      <div className="mt-auto">
-        <h2 className="text-center text-xl mb-4 font-bold">Invite Players</h2>
+      <div className="mt-auto w-full max-w-md mx-auto">
+        <h2 className="text-center text-2xl mb-6 font-bold">Invite Players</h2>
         
-        <div className="flex items-center justify-center gap-2 mb-4">
-          <button
-            onClick={handleCopyCode}
-            className="flex-1 bg-gradient-to-r from-gray-800 to-gray-700 backdrop-blur-md rounded-lg py-3 px-4 text-center relative border border-gray-600"
+        <div className="mb-2 font-medium ml-1">Room Code:</div>
+        
+        <div className="flex items-center justify-center gap-2 mb-5">
+          <div 
+            className="flex-1 bg-gray-800 rounded-lg border border-gray-600 px-3 overflow-hidden h-12 flex items-center"
+            style={{ maxWidth: '280px' }}
           >
-            Room Code: {roomCode}
-            <span className="absolute right-3 top-1/2 transform -translate-y-1/2">
-              📋
-            </span>
-          </button>
+            <span className="text-lg font-mono truncate">{roomCode}</span>
+            <button
+              onClick={handleCopyCode}
+              className="ml-auto p-2" 
+              aria-label="Copy code"
+            >
+              <span className="text-xl">📋</span>
+            </button>
+          </div>
+          
           <button
             onClick={handleTelegramShare}
             className="w-12 h-12 bg-[#0088cc] rounded-lg flex items-center justify-center shadow-md"
@@ -403,8 +410,9 @@ const AddPlayers = () => {
           </button>
         </div>
 
-        <p className="text-center text-sm text-gray-300 mb-4">
-          Share the room code or send an invite via Telegram. Start as soon as someone joins!
+        <p className="text-center text-sm text-gray-300 mb-8">
+          Share the room code or send an invite via Telegram.<br/>
+          Start as soon as someone joins!
         </p>
 
         {/* Навигационные кнопки */}
