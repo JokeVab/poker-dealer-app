@@ -29,10 +29,10 @@ const FirstScreen = () => {
     }
   }, []);
 
-  // iOS-специфичные стили для контейнера, если необходимо
+  // Мягкие стили для контейнера на iOS
   const iosContainerStyles = isIosDevice ? {
-    backgroundColor: 'rgba(45, 65, 120, 0.4)', 
-    backdropFilter: 'blur(5px)'
+    backdropFilter: 'blur(5px)',
+    borderColor: 'rgba(255, 255, 255, 0.4)'
   } : {};
 
   return (
@@ -85,7 +85,7 @@ const FirstScreen = () => {
       </div>
 
       {/* Нижний текст */}
-      <div className="mt-6 text-white/60 text-sm" style={isIosDevice ? { textShadow: '0 1px 2px rgba(0,0,0,0.7)' } : {}}>
+      <div className="mt-6 text-white/60 text-sm">
         Ready to play?
       </div>
     </div>

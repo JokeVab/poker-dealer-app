@@ -17,24 +17,18 @@ const GameSetup = () => {
     setIsIosDevice(isIOS());
   }, []);
 
-  // iOS-специфичные стили фона для кнопок
+  // iOS-специфичные стили фона для кнопок - более мягкие и элегантные
   const iosBaseStyles = {
-    backgroundColor: 'rgba(0, 10, 50, 0.7)',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
     backdropFilter: 'blur(10px)',
-    color: 'white',
-    textShadow: '0 1px 3px rgba(0, 0, 0, 0.8)',
-    fontWeight: 'bold',
-    borderWidth: '2px'
+    borderColor: 'rgba(255, 255, 255, 0.4)'
   };
 
-  // Стили для активных кнопок на iOS
+  // Стили для активных кнопок на iOS - без резких теней и обводок
   const iosActiveStyles = {
-    backgroundColor: 'rgba(59, 130, 246, 0.7)',
-    boxShadow: '0 0 15px rgba(59, 130, 246, 0.5)',
-    color: 'white',
-    textShadow: '0 1px 3px rgba(0, 0, 0, 0.8)',
-    fontWeight: 'bold',
-    borderWidth: '2px'
+    backgroundColor: 'rgba(59, 130, 246, 0.3)',
+    boxShadow: '0 0 10px rgba(59, 130, 246, 0.3)',
+    borderColor: 'rgba(59, 130, 246, 0.5)'
   };
 
   // Константы для значений времени и раздач
@@ -81,6 +75,11 @@ const GameSetup = () => {
     if (!isIosDevice) return {};
     return isActive ? iosActiveStyles : iosBaseStyles;
   };
+
+  // Стили для нижних навигационных кнопок на iOS
+  const iosNavStyles = isIosDevice ? { 
+    color: 'rgba(255, 255, 255, 0.8)'
+  } : {};
 
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-[#4B6CB7] to-[#182848] flex flex-col items-center justify-center p-6">
@@ -202,7 +201,7 @@ const GameSetup = () => {
             onClick={handleBack}
             className="text-white/60 transition-colors duration-300
                      hover:text-white active:text-white/40"
-            style={isIosDevice ? { textShadow: '0 1px 2px rgba(0,0,0,0.7)' } : {}}
+            style={iosNavStyles}
           >
             Back
           </button>
@@ -215,7 +214,7 @@ const GameSetup = () => {
             onClick={handleNext}
             className="text-blue-400 transition-colors duration-300
                      hover:text-blue-300 active:text-blue-500"
-            style={isIosDevice ? { textShadow: '0 1px 2px rgba(0,0,0,0.7)' } : {}}
+            style={iosNavStyles}
           >
             Next
           </button>
