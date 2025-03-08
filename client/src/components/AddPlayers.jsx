@@ -107,7 +107,7 @@ const AddPlayers = () => {
     const containerHeight = 300; // высота контейнера
     const topY = 40; // верхний отступ для верхних позиций
     const middleY = containerHeight / 2 - 30; // средняя линия по высоте (уменьшен отступ)
-    const bottomY = containerHeight - 50; // нижняя позиция для хоста
+    const bottomY = containerHeight - 100; // нижняя позиция для хоста (увеличен отступ снизу)
     
     // Положение игроков в верхнем ряду (3 игрока)
     const topPositions = [
@@ -231,9 +231,10 @@ const AddPlayers = () => {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-primary-dark text-white p-4">
-      {/* Круг с игроками */}
-      <div className="relative w-[300px] h-[300px] mx-auto my-8">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-blue-900 to-gray-900 text-white p-4">
+      {/* Фон стола */}
+      <div className="relative w-[300px] h-[300px] mx-auto my-8 rounded-full bg-gradient-to-br from-green-900 to-green-800 border-4 border-gray-800 shadow-xl">
+        {/* Игроки */}
         {players.map((player, index) => (
           <div
             key={player.id}
@@ -262,12 +263,12 @@ const AddPlayers = () => {
                 </div>
               )}
               {player.isHost && (
-                <div className="absolute -bottom-2 -right-2 w-7 h-7 bg-primary-dark border-2 border-white rounded-full flex items-center justify-center text-white font-bold text-sm">
+                <div className="absolute -bottom-2 -right-2 w-7 h-7 bg-white border-2 border-gray-800 rounded-full flex items-center justify-center text-black font-bold text-sm shadow-md">
                   D
                 </div>
               )}
             </div>
-            <div className="mt-1 text-center text-sm max-w-[80px] truncate">
+            <div className="mt-2 text-center text-sm max-w-[80px] truncate font-medium bg-black/30 px-2 py-0.5 rounded">
               {player.username || player.name}
             </div>
           </div>
@@ -280,7 +281,7 @@ const AddPlayers = () => {
             className="absolute transform -translate-x-1/2 -translate-y-1/2"
             style={calculatePosition(players.length + index, 6)}
           >
-            <div className="w-16 h-16 rounded-full border-2 border-white border-dashed opacity-50" />
+            <div className="w-16 h-16 rounded-full border-2 border-white border-dashed opacity-30" />
           </div>
         ))}
       </div>
@@ -301,12 +302,12 @@ const AddPlayers = () => {
 
       {/* Секция приглашения игроков */}
       <div className="mt-auto">
-        <h2 className="text-center text-xl mb-4">Invite Players</h2>
+        <h2 className="text-center text-xl mb-4 font-bold">Invite Players</h2>
         
         <div className="flex items-center justify-center gap-2 mb-4">
           <button
             onClick={handleCopyCode}
-            className="flex-1 bg-white/10 backdrop-blur-md rounded-lg py-3 px-4 text-center relative"
+            className="flex-1 bg-gradient-to-r from-gray-800 to-gray-700 backdrop-blur-md rounded-lg py-3 px-4 text-center relative border border-gray-600"
           >
             Room Code: {roomCode}
             <span className="absolute right-3 top-1/2 transform -translate-y-1/2">
@@ -315,7 +316,7 @@ const AddPlayers = () => {
           </button>
           <button
             onClick={handleTelegramShare}
-            className="w-12 h-12 bg-[#0088cc] rounded-lg flex items-center justify-center"
+            className="w-12 h-12 bg-[#0088cc] rounded-lg flex items-center justify-center shadow-md"
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M20.665 3.717L2.93497 10.554C1.72497 11.04 1.73197 11.715 2.71297 12.016L7.26497 13.436L17.797 6.791C18.295 6.488 18.75 6.651 18.376 6.983L9.84297 14.684H9.84097L9.84297 14.685L9.52897 19.377C9.98897 19.377 10.192 19.166 10.45 18.917L12.661 16.767L17.26 20.164C18.108 20.631 18.717 20.391 18.928 19.379L21.947 5.151C22.256 3.912 21.474 3.351 20.665 3.717Z" fill="white"/>
@@ -323,21 +324,21 @@ const AddPlayers = () => {
           </button>
         </div>
 
-        <p className="text-center text-sm text-white/60 mb-4">
+        <p className="text-center text-sm text-gray-300 mb-4">
           Share the room code or send an invite via Telegram. Start as soon as someone joins!
         </p>
 
         {/* Навигационные кнопки */}
-        <div className="flex justify-between mt-4">
+        <div className="flex justify-between mt-6">
           <button
             onClick={() => navigate(-1)}
-            className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center"
+            className="w-12 h-12 rounded-full bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 flex items-center justify-center shadow-lg"
           >
             ←
           </button>
           <button
             onClick={() => navigate('/game')}
-            className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center"
+            className="w-12 h-12 rounded-full bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 flex items-center justify-center shadow-lg"
           >
             →
           </button>
@@ -346,7 +347,7 @@ const AddPlayers = () => {
 
       {/* Уведомление о копировании */}
       {showCopiedToast && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-white text-primary-dark px-4 py-2 rounded-lg shadow-lg">
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-white text-gray-900 px-4 py-2 rounded-lg shadow-lg">
           Copied to clipboard!
         </div>
       )}
