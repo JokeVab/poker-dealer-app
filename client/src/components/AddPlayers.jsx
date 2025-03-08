@@ -280,7 +280,7 @@ const AddPlayers = () => {
       {/* Покерный стол */}
       <div 
         ref={tableRef}
-        className="relative mx-auto mt-12 mb-12 flex-shrink-0"
+        className="relative mx-auto mt-12 mb-20 flex-shrink-0"
         style={{
           width: `${tableSize.width}px`,
           height: `${tableSize.height}px`,
@@ -336,7 +336,7 @@ const AddPlayers = () => {
                   </div>
                 )}
               </div>
-              <div className="mt-2 text-center text-sm max-w-[80px] truncate font-medium bg-black/60 px-2 py-0.5 rounded-lg shadow">
+              <div className="text-center text-sm max-w-[80px] truncate font-medium bg-black/60 px-2 py-0.5 rounded-lg shadow">
                 {player.username || player.name}
               </div>
             </div>
@@ -381,7 +381,7 @@ const AddPlayers = () => {
 
       {/* Секция приглашения игроков */}
       <div className="mt-auto w-full max-w-md mx-auto">
-        <div className="mb-2 font-medium ml-1">Share Room Code:</div>
+        <div className="mb-3 font-medium ml-1">Share Room Code:</div>
         
         <div className="flex items-center justify-center gap-2 mb-5">
           <div 
@@ -402,27 +402,39 @@ const AddPlayers = () => {
           </button>
         </div>
 
-        <p className="text-center text-sm text-gray-300 mb-8">
-          Share the room code or send an invite via Telegram.<br/>
-          Start as soon as someone joins!
-        </p>
-
-        {/* Навигационные кнопки */}
-        <div className="flex justify-between mt-6">
+        {/* Навигационный блок с текстом */}
+        <div className="flex justify-between items-center mt-8 relative">
           <button
             onClick={() => navigate(-1)}
-            className="w-12 h-12 rounded-full bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 flex items-center justify-center shadow-lg"
+            className="px-5 py-2 rounded-lg bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 flex items-center justify-center shadow-lg"
           >
-            ←
+            Back
           </button>
+          
+          <p className="text-center text-sm text-gray-300 absolute left-1/2 transform -translate-x-1/2 w-40">
+            Start as soon as someone joins!
+          </p>
+          
           <button
             onClick={() => navigate('/game')}
-            className="w-12 h-12 rounded-full bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 flex items-center justify-center shadow-lg"
+            disabled={players.length <= 1}
+            className={`px-5 py-2 rounded-lg border flex items-center justify-center shadow-lg ${
+              players.length > 1 
+                ? 'bg-gradient-to-r from-blue-600 to-blue-700 border-blue-500 cursor-pointer' 
+                : 'bg-gray-600 border-gray-500 opacity-70 cursor-not-allowed'
+            }`}
           >
-            →
+            Next
           </button>
         </div>
       </div>
+
+      {/* Уведомление о копировании */}
+      {showCopiedToast && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-white text-gray-900 px-4 py-2 rounded-lg shadow-lg">
+          Copied to clipboard!
+        </div>
+      )}
 
       {/* Зона удаления */}
       {showDeleteZone && (
@@ -435,13 +447,6 @@ const AddPlayers = () => {
           <svg className="w-12 h-12 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
           </svg>
-        </div>
-      )}
-
-      {/* Уведомление о копировании */}
-      {showCopiedToast && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-white text-gray-900 px-4 py-2 rounded-lg shadow-lg">
-          Copied to clipboard!
         </div>
       )}
     </div>
