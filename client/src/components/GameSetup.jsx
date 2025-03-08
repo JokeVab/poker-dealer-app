@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { isIOS } from '../utils/platformUtils';
 
 const GameSetup = () => {
   const navigate = useNavigate();
+  const [isIosDevice, setIsIosDevice] = useState(false);
   
   // Состояния для параметров игры
   const [gameType, setGameType] = useState('SnG');
@@ -10,6 +12,18 @@ const GameSetup = () => {
   const [timeMode, setTimeMode] = useState('Hands');
   const [dealerDisplay, setDealerDisplay] = useState('Individual');
   
+  // Определяем iOS устройство
+  useEffect(() => {
+    setIsIosDevice(isIOS());
+  }, []);
+
+  // iOS-специфичные стили текста для улучшения читаемости
+  const iosTextStyles = {
+    textShadow: '0 1px 4px rgba(0,0,0,0.8)',
+    fontWeight: 'bold',
+    color: '#FFFFFF'
+  };
+
   // Константы для значений времени и раздач
   const speedSettings = {
     Regular: { time: 15, hands: 8 },
@@ -49,6 +63,12 @@ const GameSetup = () => {
     }
   };
 
+  // Дополнительные стили для активных кнопок на iOS
+  const getButtonStyles = (isActive) => {
+    if (!isIosDevice) return {};
+    return isActive ? iosTextStyles : { color: '#FFFFFF', textShadow: '0 1px 2px rgba(0,0,0,0.5)' };
+  };
+
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-[#4B6CB7] to-[#182848] flex flex-col items-center justify-center p-6">
       <div className="bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-xl 
@@ -61,19 +81,19 @@ const GameSetup = () => {
           <button
             className={`flex-1 h-10 rounded-xl backdrop-blur-sm border border-white/30
                       ${gameType === 'SnG' ? 'bg-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'bg-white/5'} 
-                      text-white font-bold transition-all duration-300
+                      text-white font-semibold transition-all duration-300
                       active:scale-95 active:bg-blue-500/50 touch-none`}
-            style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}
+            style={getButtonStyles(gameType === 'SnG')}
             onClick={() => setGameType('SnG')}
           >
             SnG
           </button>
           <button
             className="flex-1 h-10 rounded-xl backdrop-blur-sm border border-white/30
-                     bg-white/5 text-white/30 font-bold cursor-pointer
+                     bg-white/5 text-white/30 font-semibold cursor-pointer
                      hover:bg-white/10 transition-all duration-300
                      active:scale-95 active:bg-white/20 touch-none"
-            style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}
+            style={isIosDevice ? { textShadow: '0 1px 3px rgba(0,0,0,0.7)' } : {}}
             onClick={handleCashClick}
           >
             Cash
@@ -87,9 +107,9 @@ const GameSetup = () => {
               key={speed}
               className={`flex-1 h-10 rounded-xl backdrop-blur-sm border border-white/30
                         ${gameSpeed === speed ? 'bg-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'bg-white/5'} 
-                        text-white font-bold transition-all duration-300
+                        text-white font-semibold transition-all duration-300
                         active:scale-95 active:bg-blue-500/50 touch-none`}
-              style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}
+              style={getButtonStyles(gameSpeed === speed)}
               onClick={() => setGameSpeed(speed)}
             >
               {speed}
@@ -104,9 +124,9 @@ const GameSetup = () => {
             <button
               className={`w-full h-10 rounded-xl backdrop-blur-sm border border-white/30
                         ${timeMode === 'Time' ? 'bg-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'bg-white/5'} 
-                        text-white font-bold transition-all duration-300
+                        text-white font-semibold transition-all duration-300
                         active:scale-95 active:bg-blue-500/50 touch-none`}
-              style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}
+              style={getButtonStyles(timeMode === 'Time')}
               onClick={() => setTimeMode('Time')}
             >
               {speedSettings[gameSpeed].time}m
@@ -115,7 +135,7 @@ const GameSetup = () => {
 
           <div className="h-10 flex items-center justify-center">
             <span className="text-white/80 text-3xl leading-none">
-              {timeMode === 'Time' ? '⏱' : '🂠'}
+              {timeMode === 'Time' ? '⏱' : '🃏'}
             </span>
           </div>
 
@@ -124,9 +144,9 @@ const GameSetup = () => {
             <button
               className={`w-full h-10 rounded-xl backdrop-blur-sm border border-white/30
                         ${timeMode === 'Hands' ? 'bg-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'bg-white/5'} 
-                        text-white font-bold transition-all duration-300
+                        text-white font-semibold transition-all duration-300
                         active:scale-95 active:bg-blue-500/50 touch-none`}
-              style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}
+              style={getButtonStyles(timeMode === 'Hands')}
               onClick={() => setTimeMode('Hands')}
             >
               {speedSettings[gameSpeed].hands}
@@ -141,9 +161,9 @@ const GameSetup = () => {
             <button
               className={`flex-1 h-10 rounded-xl backdrop-blur-sm border border-white/30
                         ${dealerDisplay === 'Individual' ? 'bg-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'bg-white/5'} 
-                        text-white font-bold transition-all duration-300
+                        text-white font-semibold transition-all duration-300
                         active:scale-95 active:bg-blue-500/50 touch-none`}
-              style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}
+              style={getButtonStyles(dealerDisplay === 'Individual')}
               onClick={() => setDealerDisplay('Individual')}
             >
               Individual
@@ -151,9 +171,9 @@ const GameSetup = () => {
             <button
               className={`flex-1 h-10 rounded-xl backdrop-blur-sm border border-white/30
                         ${dealerDisplay === 'Table' ? 'bg-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'bg-white/5'} 
-                        text-white font-bold transition-all duration-300
+                        text-white font-semibold transition-all duration-300
                         active:scale-95 active:bg-blue-500/50 touch-none`}
-              style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}
+              style={getButtonStyles(dealerDisplay === 'Table')}
               onClick={() => setDealerDisplay('Table')}
             >
               Table
@@ -169,6 +189,7 @@ const GameSetup = () => {
             onClick={handleBack}
             className="text-white/60 transition-colors duration-300
                      hover:text-white active:text-white/40"
+            style={isIosDevice ? { textShadow: '0 1px 3px rgba(0,0,0,0.7)', color: 'white' } : {}}
           >
             Back
           </button>
@@ -181,6 +202,7 @@ const GameSetup = () => {
             onClick={handleNext}
             className="text-blue-400 transition-colors duration-300
                      hover:text-blue-300 active:text-blue-500"
+            style={isIosDevice ? { textShadow: '0 1px 3px rgba(0,0,0,0.7)', color: '#60A5FA' } : {}}
           >
             Next
           </button>
