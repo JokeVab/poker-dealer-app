@@ -120,9 +120,9 @@ const AddPlayers = () => {
     const tableWidth = tableSize.width;
     const tableHeight = tableSize.height;
     
-    // Радиусы эллипса
-    const a = tableWidth / 2 - 25; // Горизонтальный радиус (минус отступ для аватарок)
-    const b = tableHeight / 2 - 25; // Вертикальный радиус
+    // Радиусы эллипса позиционирования (увеличены, чтобы игроки были за пределами стола)
+    const a = tableWidth / 2 + 10; // Горизонтальный радиус 
+    const b = tableHeight / 2 + 10; // Вертикальный радиус
     
     // Центр эллипса
     const centerX = tableWidth / 2;
@@ -132,7 +132,7 @@ const AddPlayers = () => {
       // Хост всегда внизу по центру (позиция 0)
       return {
         left: centerX,
-        top: centerY + b * 0.85 // Чуть ниже центра
+        top: centerY + b * 0.7 // Ниже центра, но не слишком близко к краю
       };
     }
 
@@ -169,19 +169,19 @@ const AddPlayers = () => {
     let angle;
     switch (positionIndex) {
       case 1: // Player 1 - внизу слева
-        angle = Math.PI * 0.70;
+        angle = Math.PI * 0.65;
         break;
       case 2: // Player 2 - вверху слева
-        angle = Math.PI * 1.20;
+        angle = Math.PI * 1.25;
         break;
       case 3: // Player 3 - вверху в центре
-        angle = Math.PI * 1.50;
+        angle = Math.PI * 1.5;
         break;
       case 4: // Player 4 - вверху справа
-        angle = Math.PI * 1.80;
+        angle = Math.PI * 1.75;
         break;
       case 5: // Player 5 - внизу справа
-        angle = Math.PI * 0.30;
+        angle = Math.PI * 0.35;
         break;
       default:
         angle = 0;
@@ -289,7 +289,7 @@ const AddPlayers = () => {
       >
         {/* Овальный стол */}
         <div 
-          className="absolute inset-0 rounded-[45%] bg-gradient-to-br from-green-700 to-green-900 border-[10px] border-gray-800 shadow-2xl"
+          className="absolute inset-0 rounded-[45%] bg-gradient-to-br from-green-800 to-green-900 border-[10px] border-gray-800 shadow-2xl"
           style={{ 
             width: '100%', 
             height: '100%'
