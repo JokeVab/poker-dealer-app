@@ -19,14 +19,22 @@ const GameSetup = () => {
 
   // iOS-специфичные стили фона для кнопок
   const iosBaseStyles = {
-    backgroundColor: 'rgba(0, 0, 0, 0.25)',
-    backdropFilter: 'blur(10px)'
+    backgroundColor: 'rgba(0, 10, 50, 0.7)',
+    backdropFilter: 'blur(10px)',
+    color: 'white',
+    textShadow: '0 1px 3px rgba(0, 0, 0, 0.8)',
+    fontWeight: 'bold',
+    borderWidth: '2px'
   };
 
   // Стили для активных кнопок на iOS
   const iosActiveStyles = {
-    backgroundColor: 'rgba(59, 130, 246, 0.5)', // Более темный синий фон для активных кнопок
-    boxShadow: '0 0 15px rgba(59, 130, 246, 0.5)'
+    backgroundColor: 'rgba(59, 130, 246, 0.7)',
+    boxShadow: '0 0 15px rgba(59, 130, 246, 0.5)',
+    color: 'white',
+    textShadow: '0 1px 3px rgba(0, 0, 0, 0.8)',
+    fontWeight: 'bold',
+    borderWidth: '2px'
   };
 
   // Константы для значений времени и раздач
