@@ -61,17 +61,19 @@ const GameSetup = () => {
           <button
             className={`flex-1 h-10 rounded-xl backdrop-blur-sm border border-white/30
                       ${gameType === 'SnG' ? 'bg-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'bg-white/5'} 
-                      text-white font-semibold transition-all duration-300
+                      text-white font-bold transition-all duration-300
                       active:scale-95 active:bg-blue-500/50 touch-none`}
+            style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}
             onClick={() => setGameType('SnG')}
           >
             SnG
           </button>
           <button
             className="flex-1 h-10 rounded-xl backdrop-blur-sm border border-white/30
-                     bg-white/5 text-white/30 font-semibold cursor-pointer
+                     bg-white/5 text-white/30 font-bold cursor-pointer
                      hover:bg-white/10 transition-all duration-300
                      active:scale-95 active:bg-white/20 touch-none"
+            style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}
             onClick={handleCashClick}
           >
             Cash
@@ -85,8 +87,9 @@ const GameSetup = () => {
               key={speed}
               className={`flex-1 h-10 rounded-xl backdrop-blur-sm border border-white/30
                         ${gameSpeed === speed ? 'bg-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'bg-white/5'} 
-                        text-white font-semibold transition-all duration-300
+                        text-white font-bold transition-all duration-300
                         active:scale-95 active:bg-blue-500/50 touch-none`}
+              style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}
               onClick={() => setGameSpeed(speed)}
             >
               {speed}
@@ -101,8 +104,9 @@ const GameSetup = () => {
             <button
               className={`w-full h-10 rounded-xl backdrop-blur-sm border border-white/30
                         ${timeMode === 'Time' ? 'bg-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'bg-white/5'} 
-                        text-white font-semibold transition-all duration-300
+                        text-white font-bold transition-all duration-300
                         active:scale-95 active:bg-blue-500/50 touch-none`}
+              style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}
               onClick={() => setTimeMode('Time')}
             >
               {speedSettings[gameSpeed].time}m
@@ -120,8 +124,9 @@ const GameSetup = () => {
             <button
               className={`w-full h-10 rounded-xl backdrop-blur-sm border border-white/30
                         ${timeMode === 'Hands' ? 'bg-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'bg-white/5'} 
-                        text-white font-semibold transition-all duration-300
+                        text-white font-bold transition-all duration-300
                         active:scale-95 active:bg-blue-500/50 touch-none`}
+              style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}
               onClick={() => setTimeMode('Hands')}
             >
               {speedSettings[gameSpeed].hands}
@@ -136,8 +141,9 @@ const GameSetup = () => {
             <button
               className={`flex-1 h-10 rounded-xl backdrop-blur-sm border border-white/30
                         ${dealerDisplay === 'Individual' ? 'bg-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'bg-white/5'} 
-                        text-white font-semibold transition-all duration-300
+                        text-white font-bold transition-all duration-300
                         active:scale-95 active:bg-blue-500/50 touch-none`}
+              style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}
               onClick={() => setDealerDisplay('Individual')}
             >
               Individual
@@ -145,8 +151,9 @@ const GameSetup = () => {
             <button
               className={`flex-1 h-10 rounded-xl backdrop-blur-sm border border-white/30
                         ${dealerDisplay === 'Table' ? 'bg-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'bg-white/5'} 
-                        text-white font-semibold transition-all duration-300
+                        text-white font-bold transition-all duration-300
                         active:scale-95 active:bg-blue-500/50 touch-none`}
+              style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}
               onClick={() => setDealerDisplay('Table')}
             >
               Table
