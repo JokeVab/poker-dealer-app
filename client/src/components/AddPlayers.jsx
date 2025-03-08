@@ -110,71 +110,82 @@ const AddPlayers = () => {
     // Общее количество позиций (включая пустые)
     const maxPositions = 6; 
     
-    // Если игрок хост, то ставим его внизу
+    // Если игрок хост, то ставим его внизу по центру
     const isHost = players[index]?.isHost;
     
     // Массив всех игроков, кроме хоста
     const nonHostPlayers = players.filter(p => !p.isHost);
     
     // Ширина и высота эллипса стола
-    const tableWidth = tableSize.width * 0.9;  // 90% от ширины контейнера
-    const tableHeight = tableSize.height * 0.9; // 90% от высоты контейнера
+    const tableWidth = tableSize.width;
+    const tableHeight = tableSize.height;
     
     // Радиусы эллипса
-    const a = tableWidth / 2 - 30; // Горизонтальный радиус (минус отступ для аватарок)
-    const b = tableHeight / 2 - 30; // Вертикальный радиус
+    const a = tableWidth / 2 - 25; // Горизонтальный радиус (минус отступ для аватарок)
+    const b = tableHeight / 2 - 25; // Вертикальный радиус
     
     // Центр эллипса
     const centerX = tableWidth / 2;
     const centerY = tableHeight / 2;
     
     if (isHost) {
-      // Хост всегда внизу по центру
+      // Хост всегда внизу по центру (позиция 0)
       return {
         left: centerX,
-        top: centerY + b * 0.8 // Немного ближе к центру, чем край эллипса
+        top: centerY + b * 0.85 // Чуть ниже центра
       };
     }
 
     // Для остальных игроков распределяем позиции по эллипсу
-    
     // Находим позицию этого игрока среди не-хостов
     const nonHostIndex = nonHostPlayers.findIndex(p => p.id === players[index]?.id);
     
     // Для пустых слотов
     const emptySlotIndex = index - players.length;
     
-    // Определяем позицию на эллипсе (от 0 до 5)
+    // Определяем позицию на эллипсе (от 1 до 5, позиция 0 - хост)
     let positionIndex;
     
     if (nonHostIndex >= 0) {
       // Для реальных игроков (не хостов)
-      positionIndex = nonHostIndex;
+      positionIndex = nonHostIndex + 1; // +1 потому что позиция 0 - хост
     } else if (emptySlotIndex >= 0) {
       // Для пустых слотов
-      // Находим свободные позиции
-      const takenPositions = nonHostPlayers.map((_, i) => i);
-      const availablePositions = Array.from({length: 5}).map((_, i) => i) // 5 позиций (исключая хоста)
+      // Находим свободные позиции (исключая позицию хоста - 0)
+      const takenPositions = nonHostPlayers.map((_, i) => i + 1);
+      const availablePositions = [1, 2, 3, 4, 5] // 5 позиций (исключая хоста)
         .filter(pos => !takenPositions.includes(pos));
       
       if (emptySlotIndex < availablePositions.length) {
         positionIndex = availablePositions[emptySlotIndex];
       } else {
-        return { left: 0, top: 0 }; // Скрываем лишние пустые слоты
+        return { left: 0, top: 0, hidden: true }; // Скрываем лишние пустые слоты
       }
     } else {
-      return { left: 0, top: 0 }; // Скрываем слот, если не определен
+      return { left: 0, top: 0, hidden: true }; // Скрываем слот, если не определен
     }
 
-    // Равномерно распределяем позиции по верхней части эллипса (от PI до 2*PI)
-    // Позиция 0 - верхняя левая, позиция 4 - верхняя правая
+    // Задаем угол для каждой позиции по периметру стола
     let angle;
-    
-    if (positionIndex === 0) angle = Math.PI + Math.PI/6; // Верхняя левая
-    else if (positionIndex === 1) angle = Math.PI + Math.PI/3; // Верхняя левая-центр
-    else if (positionIndex === 2) angle = Math.PI + Math.PI/2; // Верхняя центр
-    else if (positionIndex === 3) angle = Math.PI + 2*Math.PI/3; // Верхняя правая-центр
-    else if (positionIndex === 4) angle = Math.PI + 5*Math.PI/6; // Верхняя правая
+    switch (positionIndex) {
+      case 1: // Player 1 - внизу слева
+        angle = Math.PI * 0.70;
+        break;
+      case 2: // Player 2 - вверху слева
+        angle = Math.PI * 1.20;
+        break;
+      case 3: // Player 3 - вверху в центре
+        angle = Math.PI * 1.50;
+        break;
+      case 4: // Player 4 - вверху справа
+        angle = Math.PI * 1.80;
+        break;
+      case 5: // Player 5 - внизу справа
+        angle = Math.PI * 0.30;
+        break;
+      default:
+        angle = 0;
+    }
     
     // Вычисляем координаты на эллипсе
     const x = centerX + a * Math.cos(angle);
@@ -265,7 +276,7 @@ const AddPlayers = () => {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-gray-900 to-black text-white p-4">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-indigo-900 via-blue-900 to-gray-900 text-white p-4">
       {/* Покерный стол */}
       <div 
         ref={tableRef}
@@ -278,7 +289,7 @@ const AddPlayers = () => {
       >
         {/* Овальный стол */}
         <div 
-          className="absolute inset-0 rounded-[45%] bg-gradient-to-br from-green-800 to-green-900 border-[8px] border-gray-800 shadow-xl"
+          className="absolute inset-0 rounded-[45%] bg-gradient-to-br from-green-700 to-green-900 border-[10px] border-gray-800 shadow-2xl"
           style={{ 
             width: '100%', 
             height: '100%'
@@ -292,12 +303,13 @@ const AddPlayers = () => {
             <div
               key={player.id}
               className={`absolute transform -translate-x-1/2 -translate-y-1/2 
-                        ${selectedPlayer?.id === player.id ? 'z-50' : 'z-0'}
+                        ${selectedPlayer?.id === player.id ? 'z-50' : 'z-10'}
                         ${player.isHost ? '' : 'cursor-move'}
                         flex flex-col items-center`}
               style={{
                 left: `${position.left}px`,
-                top: `${position.top}px`
+                top: `${position.top}px`,
+                display: position.hidden ? 'none' : 'block'
               }}
               onTouchStart={() => handlePlayerClick(player)}
               onMouseDown={() => handlePlayerClick(player)}
@@ -324,7 +336,7 @@ const AddPlayers = () => {
                   </div>
                 )}
               </div>
-              <div className="mt-2 text-center text-sm max-w-[80px] truncate font-medium bg-black/60 px-2 py-0.5 rounded">
+              <div className="mt-2 text-center text-sm max-w-[80px] truncate font-medium bg-black/60 px-2 py-0.5 rounded-lg shadow">
                 {player.username || player.name}
               </div>
             </div>
@@ -332,16 +344,33 @@ const AddPlayers = () => {
         })}
         
         {/* Пустые слоты */}
-        {Array.from({ length: 5 - (players.filter(p => !p.isHost).length) }).map((_, index) => {
+        {Array.from({ length: 5 }).map((_, index) => {
+          // Вычисляем, какие позиции заняты (кроме хоста)
+          const nonHostPositions = players
+            .filter(p => !p.isHost)
+            .map((_, i) => i + 1);
+          
+          // Позиция текущего пустого слота (от 1 до 5)
+          const slotPosition = index + 1;
+          
+          // Отображаем слот только если эта позиция не занята
+          if (nonHostPositions.includes(slotPosition)) {
+            return null;
+          }
+          
           const position = calculatePosition(players.length + index, 6);
+          
+          if (position.hidden) {
+            return null;
+          }
+          
           return (
             <div
               key={`empty-${index}`}
               className="absolute transform -translate-x-1/2 -translate-y-1/2"
               style={{
                 left: `${position.left}px`,
-                top: `${position.top}px`,
-                display: position.left === 0 && position.top === 0 ? 'none' : 'block'
+                top: `${position.top}px`
               }}
             >
               <div className="w-16 h-16 rounded-full border-2 border-white border-dashed opacity-30" />
