@@ -311,7 +311,7 @@ const AddPlayers = () => {
         {/* Покерный стол */}
         <div 
           ref={tableRef}
-          className="relative mx-auto mt-12 mb-10 flex-shrink-0"
+          className="relative mx-auto mt-12 mb-20 flex-shrink-0"
           style={{
             width: `${tableSize.width}px`,
             height: `${tableSize.height}px`,
@@ -411,7 +411,7 @@ const AddPlayers = () => {
         </div>
 
         {/* Секция Share Room Code перемещена вверх ближе к столу */}
-        <div className="w-full max-w-md mx-auto mt-4"> 
+        <div className="w-full max-w-md mx-auto mt-8">
           <div className="mb-3 font-medium ml-1">Share Room Code:</div>
           
           <div className="flex items-center justify-center gap-2 mb-5">
