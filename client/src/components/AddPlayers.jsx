@@ -121,18 +121,18 @@ const AddPlayers = () => {
     const tableHeight = tableSize.height;
     
     // Радиусы эллипса позиционирования (увеличены, чтобы игроки были за пределами стола)
-    const a = tableWidth / 2 + 10; // Горизонтальный радиус 
-    const b = tableHeight / 2 + 10; // Вертикальный радиус
+    const a = tableWidth / 2 + 20; // Горизонтальный радиус (увеличен для игроков)
+    const b = tableHeight / 2 + 20; // Вертикальный радиус (увеличен для игроков)
     
     // Центр эллипса
     const centerX = tableWidth / 2;
     const centerY = tableHeight / 2;
     
     if (isHost) {
-      // Хост всегда внизу по центру (позиция 0)
+      // Хост также снаружи стола, внизу по центру
       return {
         left: centerX,
-        top: centerY + b * 0.7 // Ниже центра, но не слишком близко к краю
+        top: centerY + b * 0.95 // Значительно ниже центра, чтобы хост был снаружи стола
       };
     }
 
@@ -168,20 +168,20 @@ const AddPlayers = () => {
     // Задаем угол для каждой позиции по периметру стола
     let angle;
     switch (positionIndex) {
-      case 1: // Player 1 - внизу слева
-        angle = Math.PI * 0.65;
+      case 1: // Player 1 - внизу слева (перемещён дальше влево)
+        angle = Math.PI * 0.80;
         break;
       case 2: // Player 2 - вверху слева
-        angle = Math.PI * 1.25;
+        angle = Math.PI * 1.20;
         break;
       case 3: // Player 3 - вверху в центре
-        angle = Math.PI * 1.5;
+        angle = Math.PI * 1.50;
         break;
       case 4: // Player 4 - вверху справа
-        angle = Math.PI * 1.75;
+        angle = Math.PI * 1.80;
         break;
-      case 5: // Player 5 - внизу справа
-        angle = Math.PI * 0.35;
+      case 5: // Player 5 - внизу справа (перемещён дальше вправо)
+        angle = Math.PI * 0.20;
         break;
       default:
         angle = 0;
