@@ -302,7 +302,7 @@ const AddPlayers = () => {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-indigo-900 via-blue-900 to-gray-900 text-white p-6">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-[#4B6CB7] to-[#182848] text-white p-6">
       <div className="flex-1">
         {/* Покерный стол */}
         <div 
@@ -400,7 +400,7 @@ const AddPlayers = () => {
                   top: `${position.top}px`
                 }}
               >
-                <div className="w-16 h-16 rounded-full border-2 border-white border-dashed opacity-30" />
+                <div className="w-16 h-16 rounded-full border-2 border-white/40 border-dashed bg-white/5 backdrop-blur-sm" />
               </div>
             );
           })}
@@ -413,7 +413,7 @@ const AddPlayers = () => {
           <div className="flex items-center justify-center gap-2 mb-5">
             <div 
               onClick={handleCopyCode} 
-              className="flex-1 bg-gray-800 rounded-lg border border-gray-600 px-3 overflow-hidden h-12 flex items-center cursor-pointer hover:bg-gray-700 transition-colors"
+              className="flex-1 bg-white/10 rounded-lg backdrop-blur-sm border border-white/30 px-3 overflow-hidden h-12 flex items-center cursor-pointer hover:bg-white/15 transition-colors"
               style={{ maxWidth: '280px' }}
             >
               <span className="text-lg font-mono truncate w-full text-center">{roomCode}</span>
