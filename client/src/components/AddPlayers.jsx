@@ -49,11 +49,9 @@ const AddPlayers = () => {
           try {
             // Попытка загрузить существующую комнату
             setIsCreatingRoom(true);
-            console.log('Loading saved room:', savedRoomCode);
             const roomData = await getRoom(savedRoomCode);
             
             if (roomData) {
-              console.log('Room data loaded:', roomData);
               setRoomCode(savedRoomCode);
               setPlayers(roomData.players || []);
               setIsCreatingRoom(false);
@@ -97,13 +95,11 @@ const AddPlayers = () => {
                 isHost: true
               }],
               status: 'waiting',
-              maxPlayers: 6,
-              created_at: new Date().toISOString()
+              maxPlayers: 6
             };
 
             // Создаем комнату в Firebase
             const roomId = await createRoomInFirebase(roomData);
-            console.log('New room created:', roomId);
             setRoomCode(roomId);
             // Сохраняем код комнаты в localStorage
             localStorage.setItem('roomCode', roomId);
@@ -411,7 +407,7 @@ const AddPlayers = () => {
         </div>
 
         {/* Секция Share Room Code перемещена вверх ближе к столу */}
-        <div className="w-full max-w-md mx-auto mt-8">
+        <div className="w-full max-w-md mx-auto mt-12">
           <div className="mb-3 font-medium ml-1">Share Room Code:</div>
           
           <div className="flex items-center justify-center gap-2 mb-5">
