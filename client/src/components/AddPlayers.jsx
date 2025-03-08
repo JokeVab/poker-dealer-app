@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createRoomInFirebase, updateRoomPlayers } from '../firebase/firebase';
+import { createRoomInFirebase, updateRoomPlayers, getRoom } from '../firebase/firebase';
 
 const AddPlayers = () => {
   const navigate = useNavigate();
@@ -41,15 +41,39 @@ const AddPlayers = () => {
         }
 
         const tg = window.Telegram.WebApp;
-        const userData = tg.initDataUnsafe?.user || {
-          id: 'test_user_id',
-          first_name: 'Test',
-          username: 'test_user'
-        };
+        
+        // Проверяем, есть ли сохраненный код комнаты в localStorage
+        const savedRoomCode = localStorage.getItem('roomCode');
+        
+        if (savedRoomCode && !roomCode) {
+          try {
+            // Попытка загрузить существующую комнату
+            setIsCreatingRoom(true);
+            const roomData = await getRoom(savedRoomCode);
+            
+            if (roomData) {
+              setRoomCode(savedRoomCode);
+              setPlayers(roomData.players || []);
+              setIsCreatingRoom(false);
+              return; // Успешно загрузили существующую комнату
+            }
+          } catch (err) {
+            console.error('Error loading saved room:', err);
+            // Если не удалось загрузить комнату, удаляем сохраненный код
+            localStorage.removeItem('roomCode');
+          }
+        }
 
+        // Создаем новую комнату, только если нет кода и не создаем уже
         if (!isCreatingRoom && !roomCode) {
           setIsCreatingRoom(true);
           try {
+            const userData = tg.initDataUnsafe?.user || {
+              id: Date.now().toString(),
+              first_name: 'Test',
+              username: 'test_user'
+            };
+
             const host = {
               id: userData.id.toString(),
               name: userData.first_name || userData.username || 'Anonymous',
@@ -77,6 +101,8 @@ const AddPlayers = () => {
             // Создаем комнату в Firebase
             const roomId = await createRoomInFirebase(roomData);
             setRoomCode(roomId);
+            // Сохраняем код комнаты в localStorage
+            localStorage.setItem('roomCode', roomId);
             setPlayers(roomData.players);
             setIsCreatingRoom(false);
           } catch (err) {
@@ -277,155 +303,160 @@ const AddPlayers = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-indigo-900 via-blue-900 to-gray-900 text-white p-6">
-      {/* Покерный стол */}
-      <div 
-        ref={tableRef}
-        className="relative mx-auto mt-12 mb-20 flex-shrink-0"
-        style={{
-          width: `${tableSize.width}px`,
-          height: `${tableSize.height}px`,
-          overflow: 'visible'
-        }}
-      >
-        {/* Овальный стол */}
+      <div className="flex-1">
+        {/* Покерный стол */}
         <div 
-          className="absolute inset-0 rounded-[45%] bg-gradient-to-br from-green-800 to-green-900 border-[10px] border-gray-800 shadow-2xl"
-          style={{ 
-            width: '100%', 
-            height: '100%'
+          ref={tableRef}
+          className="relative mx-auto mt-12 mb-10 flex-shrink-0"
+          style={{
+            width: `${tableSize.width}px`,
+            height: `${tableSize.height}px`,
+            overflow: 'visible'
           }}
-        />
-        
-        {/* Игроки */}
-        {players.map((player, index) => {
-          const position = calculatePosition(index, players.length);
-          return (
-            <div
-              key={player.id}
-              className={`absolute transform -translate-x-1/2 -translate-y-1/2 
-                        ${selectedPlayer?.id === player.id ? 'z-50' : 'z-10'}
-                        ${player.isHost ? '' : 'cursor-move'}
-                        flex flex-col items-center`}
-              style={{
-                left: `${position.left}px`,
-                top: `${position.top}px`,
-                display: position.hidden ? 'none' : 'block'
-              }}
-              onTouchStart={() => handlePlayerClick(player)}
-              onMouseDown={() => handlePlayerClick(player)}
-              onTouchEnd={handlePlayerRelease}
-              onMouseUp={handlePlayerRelease}
-            >
-              <div className="relative">
-                {player.avatar ? (
-                  <img
-                    src={player.avatar}
-                    alt={player.name}
-                    className={`rounded-full border-2 border-white ${player.isHost ? 'w-20 h-20' : 'w-16 h-16'}`}
-                    draggable="false"
-                  />
-                ) : (
-                  <div className={`rounded-full bg-gray-600 border-2 border-white flex items-center justify-center 
-                                 ${player.isHost ? 'w-20 h-20 text-xl' : 'w-16 h-16 text-lg'}`}>
-                    {player.name[0]}
-                  </div>
-                )}
-                {player.isHost && (
-                  <div className="absolute -bottom-2 -right-2 w-7 h-7 bg-white border-2 border-gray-800 rounded-full flex items-center justify-center text-black font-bold text-sm shadow-md">
-                    D
-                  </div>
-                )}
-              </div>
-              <div className="text-center text-sm max-w-[80px] truncate font-medium bg-black/60 px-2 py-0.5 rounded-lg shadow">
-                {player.username || player.name}
-              </div>
-            </div>
-          );
-        })}
-        
-        {/* Пустые слоты */}
-        {Array.from({ length: 5 }).map((_, index) => {
-          // Вычисляем, какие позиции заняты (кроме хоста)
-          const nonHostPositions = players
-            .filter(p => !p.isHost)
-            .map((_, i) => i + 1);
-          
-          // Позиция текущего пустого слота (от 1 до 5)
-          const slotPosition = index + 1;
-          
-          // Отображаем слот только если эта позиция не занята
-          if (nonHostPositions.includes(slotPosition)) {
-            return null;
-          }
-          
-          const position = calculatePosition(players.length + index, 6);
-          
-          if (position.hidden) {
-            return null;
-          }
-          
-          return (
-            <div
-              key={`empty-${index}`}
-              className="absolute transform -translate-x-1/2 -translate-y-1/2"
-              style={{
-                left: `${position.left}px`,
-                top: `${position.top}px`
-              }}
-            >
-              <div className="w-16 h-16 rounded-full border-2 border-white border-dashed opacity-30" />
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Секция приглашения игроков */}
-      <div className="mt-auto w-full max-w-md mx-auto">
-        <div className="mb-3 font-medium ml-1">Share Room Code:</div>
-        
-        <div className="flex items-center justify-center gap-2 mb-5">
+        >
+          {/* Овальный стол */}
           <div 
-            onClick={handleCopyCode} 
-            className="flex-1 bg-gray-800 rounded-lg border border-gray-600 px-3 overflow-hidden h-12 flex items-center cursor-pointer hover:bg-gray-700 transition-colors"
-            style={{ maxWidth: '280px' }}
-          >
-            <span className="text-lg font-mono truncate w-full text-center">{roomCode}</span>
-          </div>
+            className="absolute inset-0 rounded-[45%] bg-gradient-to-br from-green-800 to-green-900 border-[10px] border-gray-800 shadow-2xl"
+            style={{ 
+              width: '100%', 
+              height: '100%'
+            }}
+          />
           
-          <button
-            onClick={handleTelegramShare}
-            className="w-12 h-12 bg-[#0088cc] rounded-lg flex items-center justify-center shadow-md"
-          >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M20.665 3.717L2.93497 10.554C1.72497 11.04 1.73197 11.715 2.71297 12.016L7.26497 13.436L17.797 6.791C18.295 6.488 18.75 6.651 18.376 6.983L9.84297 14.684H9.84097L9.84297 14.685L9.52897 19.377C9.98897 19.377 10.192 19.166 10.45 18.917L12.661 16.767L17.26 20.164C18.108 20.631 18.717 20.391 18.928 19.379L21.947 5.151C22.256 3.912 21.474 3.351 20.665 3.717Z" fill="white"/>
-            </svg>
-          </button>
+          {/* Игроки */}
+          {players.map((player, index) => {
+            const position = calculatePosition(index, players.length);
+            return (
+              <div
+                key={player.id}
+                className={`absolute transform -translate-x-1/2 -translate-y-1/2 
+                          ${selectedPlayer?.id === player.id ? 'z-50' : 'z-10'}
+                          ${player.isHost ? '' : 'cursor-move'}
+                          flex flex-col items-center`}
+                style={{
+                  left: `${position.left}px`,
+                  top: `${position.top}px`,
+                  display: position.hidden ? 'none' : 'block'
+                }}
+                onTouchStart={() => handlePlayerClick(player)}
+                onMouseDown={() => handlePlayerClick(player)}
+                onTouchEnd={handlePlayerRelease}
+                onMouseUp={handlePlayerRelease}
+              >
+                <div className="relative">
+                  {player.avatar ? (
+                    <img
+                      src={player.avatar}
+                      alt={player.name}
+                      className={`rounded-full border-2 border-white ${player.isHost ? 'w-20 h-20' : 'w-16 h-16'}`}
+                      draggable="false"
+                    />
+                  ) : (
+                    <div className={`rounded-full bg-gray-600 border-2 border-white flex items-center justify-center 
+                                   ${player.isHost ? 'w-20 h-20 text-xl' : 'w-16 h-16 text-lg'}`}>
+                      {player.name[0]}
+                    </div>
+                  )}
+                  {player.isHost && (
+                    <div className="absolute -bottom-2 -right-2 w-7 h-7 bg-white border-2 border-gray-800 rounded-full flex items-center justify-center text-black font-bold text-sm shadow-md">
+                      D
+                    </div>
+                  )}
+                </div>
+                <div className="text-center text-sm max-w-[80px] truncate font-medium bg-black/60 px-2 py-0.5 rounded-lg shadow">
+                  {player.username || player.name}
+                </div>
+              </div>
+            );
+          })}
+          
+          {/* Пустые слоты */}
+          {Array.from({ length: 5 }).map((_, index) => {
+            // Вычисляем, какие позиции заняты (кроме хоста)
+            const nonHostPositions = players
+              .filter(p => !p.isHost)
+              .map((_, i) => i + 1);
+            
+            // Позиция текущего пустого слота (от 1 до 5)
+            const slotPosition = index + 1;
+            
+            // Отображаем слот только если эта позиция не занята
+            if (nonHostPositions.includes(slotPosition)) {
+              return null;
+            }
+            
+            const position = calculatePosition(players.length + index, 6);
+            
+            if (position.hidden) {
+              return null;
+            }
+            
+            return (
+              <div
+                key={`empty-${index}`}
+                className="absolute transform -translate-x-1/2 -translate-y-1/2"
+                style={{
+                  left: `${position.left}px`,
+                  top: `${position.top}px`
+                }}
+              >
+                <div className="w-16 h-16 rounded-full border-2 border-white border-dashed opacity-30" />
+              </div>
+            );
+          })}
         </div>
 
-        {/* Навигационный блок с текстом */}
-        <div className="flex justify-between items-center mt-8 relative">
-          <button
+        {/* Секция Share Room Code перемещена вверх ближе к столу */}
+        <div className="w-full max-w-md mx-auto mt-4"> 
+          <div className="mb-3 font-medium ml-1">Share Room Code:</div>
+          
+          <div className="flex items-center justify-center gap-2 mb-5">
+            <div 
+              onClick={handleCopyCode} 
+              className="flex-1 bg-gray-800 rounded-lg border border-gray-600 px-3 overflow-hidden h-12 flex items-center cursor-pointer hover:bg-gray-700 transition-colors"
+              style={{ maxWidth: '280px' }}
+            >
+              <span className="text-lg font-mono truncate w-full text-center">{roomCode}</span>
+            </div>
+            
+            <button
+              onClick={handleTelegramShare}
+              className="w-12 h-12 bg-[#0088cc] rounded-lg flex items-center justify-center shadow-md"
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20.665 3.717L2.93497 10.554C1.72497 11.04 1.73197 11.715 2.71297 12.016L7.26497 13.436L17.797 6.791C18.295 6.488 18.75 6.651 18.376 6.983L9.84297 14.684H9.84097L9.84297 14.685L9.52897 19.377C9.98897 19.377 10.192 19.166 10.45 18.917L12.661 16.767L17.26 20.164C18.108 20.631 18.717 20.391 18.928 19.379L21.947 5.151C22.256 3.912 21.474 3.351 20.665 3.717Z" fill="white"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Навигационный блок с текстовым стилем */}
+      <div className="mt-auto">
+        <div className="flex justify-between items-center py-4 relative">
+          {/* Текстовая навигация Back */}
+          <div 
             onClick={() => navigate(-1)}
-            className="px-5 py-2 rounded-lg bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 flex items-center justify-center shadow-lg"
+            className="text-gray-300 hover:text-white cursor-pointer px-4"
           >
             Back
-          </button>
+          </div>
           
           <p className="text-center text-sm text-gray-300 absolute left-1/2 transform -translate-x-1/2 w-40">
             Start as soon as someone joins!
           </p>
           
-          <button
-            onClick={() => navigate('/game')}
-            disabled={players.length <= 1}
-            className={`px-5 py-2 rounded-lg border flex items-center justify-center shadow-lg ${
+          {/* Текстовая навигация Next с условным стилем */}
+          <div 
+            onClick={players.length > 1 ? () => navigate('/game') : undefined}
+            className={`px-4 ${
               players.length > 1 
-                ? 'bg-gradient-to-r from-blue-600 to-blue-700 border-blue-500 cursor-pointer' 
-                : 'bg-gray-600 border-gray-500 opacity-70 cursor-not-allowed'
+                ? 'text-white cursor-pointer' 
+                : 'text-gray-500 cursor-not-allowed'
             }`}
           >
             Next
-          </button>
+          </div>
         </div>
       </div>
 
