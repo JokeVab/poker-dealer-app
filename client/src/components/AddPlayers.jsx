@@ -106,7 +106,7 @@ const AddPlayers = () => {
     const containerWidth = 300; // ширина контейнера
     const containerHeight = 300; // высота контейнера
     const topY = 40; // верхний отступ для верхних позиций
-    const middleY = containerHeight / 2; // средняя линия по высоте
+    const middleY = containerHeight / 2 - 30; // средняя линия по высоте (уменьшен отступ)
     const bottomY = containerHeight - 50; // нижняя позиция для хоста
     
     // Положение игроков в верхнем ряду (3 игрока)
@@ -136,20 +136,24 @@ const AddPlayers = () => {
     
     if (nonHostIndex < 0) {
       // Для пустых слотов
-      const emptySlotIndex = index - players.filter(p => !p.isHost).length;
+      // Индекс пустого слота в общем списке пустых слотов
+      const emptySlots = Array.from({ length: 5 }).map((_, i) => i); // Всего 5 мест (не считая хоста)
+      const occupiedSlots = nonHostPlayers.map((p, i) => i);
+      const availableSlots = emptySlots.filter(slot => !occupiedSlots.includes(slot));
       
-      // Распределяем пустые слоты в оставшиеся позиции
+      // Определяем, какой по счету это пустой слот
+      const emptySlotIndex = index - players.length;
+      
+      // Распределяем позиции для пустых слотов
       const allPositions = [...topPositions, ...middlePositions];
-      const remainingPositions = allPositions.filter((_, i) => {
-        return !nonHostPlayers.some((_, playerIndex) => playerIndex === i);
-      });
       
-      if (emptySlotIndex < remainingPositions.length) {
-        return remainingPositions[emptySlotIndex];
+      if (emptySlotIndex < availableSlots.length && emptySlotIndex >= 0) {
+        const slotPosition = availableSlots[emptySlotIndex];
+        return allPositions[slotPosition];
       }
       
-      // Если больше позиций нет, возвращаем последнюю
-      return remainingPositions[remainingPositions.length - 1] || hostPosition;
+      // Если индекс выходит за пределы, возвращаем последнюю доступную позицию
+      return allPositions[availableSlots[availableSlots.length - 1] || 0];
     }
     
     // Для реальных игроков (не хостов)
@@ -258,19 +262,19 @@ const AddPlayers = () => {
                 </div>
               )}
               {player.isHost && (
-                <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-white rounded-full flex items-center justify-center text-primary-dark font-bold text-xs">
+                <div className="absolute -bottom-2 -right-2 w-7 h-7 bg-primary-dark border-2 border-white rounded-full flex items-center justify-center text-white font-bold text-sm">
                   D
                 </div>
               )}
             </div>
-            <div className="mt-1 text-center text-xs max-w-[80px] truncate">
+            <div className="mt-1 text-center text-sm max-w-[80px] truncate">
               {player.username || player.name}
             </div>
           </div>
         ))}
         
         {/* Пустые слоты */}
-        {Array.from({ length: 5 - (players.length - 1) }).map((_, index) => (
+        {Array.from({ length: 5 - (players.filter(p => !p.isHost).length) }).map((_, index) => (
           <div
             key={`empty-${index}`}
             className="absolute transform -translate-x-1/2 -translate-y-1/2"
