@@ -102,23 +102,64 @@ const AddPlayers = () => {
   };
 
   const calculatePosition = (index, totalPlayers) => {
-    const radius = 130;
-    const angleStep = (2 * Math.PI) / 6;
-    const startAngle = -Math.PI / 2;
+    // Новая расстановка: 3 вверху, 2 по бокам, хост внизу посередине
+    const containerWidth = 300; // ширина контейнера
+    const containerHeight = 300; // высота контейнера
+    const topY = 40; // верхний отступ для верхних позиций
+    const middleY = containerHeight / 2; // средняя линия по высоте
+    const bottomY = containerHeight - 50; // нижняя позиция для хоста
+    
+    // Положение игроков в верхнем ряду (3 игрока)
+    const topPositions = [
+      { left: containerWidth * 0.25, top: topY }, // левый верхний
+      { left: containerWidth * 0.5, top: topY }, // центральный верхний
+      { left: containerWidth * 0.75, top: topY } // правый верхний
+    ];
+    
+    // Положение игроков по бокам в среднем ряду (2 игрока)
+    const middlePositions = [
+      { left: 30, top: middleY }, // левый средний
+      { left: containerWidth - 30, top: middleY } // правый средний
+    ];
+    
+    // Положение хоста (внизу посередине)
+    const hostPosition = { left: containerWidth / 2, top: bottomY };
 
-    let angle;
+    // Проверяем, является ли игрок хостом
     if (players[index]?.isHost) {
-      angle = startAngle + (5 * angleStep);
-    } else {
-      let position = index;
-      if (position >= 5) position++;
-      angle = startAngle + (position * angleStep);
+      return hostPosition;
     }
 
-    return {
-      left: `${radius * Math.cos(angle) + radius}px`,
-      top: `${radius * Math.sin(angle) + radius}px`
-    };
+    // Распределяем места для обычных игроков
+    const nonHostPlayers = players.filter(p => !p.isHost);
+    const nonHostIndex = nonHostPlayers.findIndex(p => p.id === players[index]?.id);
+    
+    if (nonHostIndex < 0) {
+      // Для пустых слотов
+      const emptySlotIndex = index - players.filter(p => !p.isHost).length;
+      
+      // Распределяем пустые слоты в оставшиеся позиции
+      const allPositions = [...topPositions, ...middlePositions];
+      const remainingPositions = allPositions.filter((_, i) => {
+        return !nonHostPlayers.some((_, playerIndex) => playerIndex === i);
+      });
+      
+      if (emptySlotIndex < remainingPositions.length) {
+        return remainingPositions[emptySlotIndex];
+      }
+      
+      // Если больше позиций нет, возвращаем последнюю
+      return remainingPositions[remainingPositions.length - 1] || hostPosition;
+    }
+    
+    // Для реальных игроков (не хостов)
+    const allPositions = [...topPositions, ...middlePositions];
+    if (nonHostIndex < allPositions.length) {
+      return allPositions[nonHostIndex];
+    }
+    
+    // Если больше позиций нет, возвращаем последнюю
+    return allPositions[allPositions.length - 1] || hostPosition;
   };
 
   const handlePlayerClick = (player) => {
@@ -192,9 +233,10 @@ const AddPlayers = () => {
         {players.map((player, index) => (
           <div
             key={player.id}
-            className={`absolute w-16 h-16 transform -translate-x-1/2 -translate-y-1/2 
+            className={`absolute transform -translate-x-1/2 -translate-y-1/2 
                       ${selectedPlayer?.id === player.id ? 'z-50' : 'z-0'}
-                      ${player.isHost ? '' : 'cursor-move'}`}
+                      ${player.isHost ? '' : 'cursor-move'}
+                      flex flex-col items-center`}
             style={calculatePosition(index, players.length)}
             onTouchStart={() => handlePlayerClick(player)}
             onMouseDown={() => handlePlayerClick(player)}
@@ -206,28 +248,32 @@ const AddPlayers = () => {
                 <img
                   src={player.avatar}
                   alt={player.name}
-                  className="w-16 h-16 rounded-full border-2 border-white"
+                  className={`rounded-full border-2 border-white ${player.isHost ? 'w-20 h-20' : 'w-16 h-16'}`}
                   draggable="false"
                 />
               ) : (
-                <div className="w-16 h-16 rounded-full bg-gray-600 border-2 border-white flex items-center justify-center">
+                <div className={`rounded-full bg-gray-600 border-2 border-white flex items-center justify-center 
+                               ${player.isHost ? 'w-20 h-20 text-xl' : 'w-16 h-16 text-lg'}`}>
                   {player.name[0]}
                 </div>
               )}
               {player.isHost && (
-                <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-white rounded-full flex items-center justify-center text-primary-dark font-bold">
+                <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-white rounded-full flex items-center justify-center text-primary-dark font-bold text-xs">
                   D
                 </div>
               )}
+            </div>
+            <div className="mt-1 text-center text-xs max-w-[80px] truncate">
+              {player.username || player.name}
             </div>
           </div>
         ))}
         
         {/* Пустые слоты */}
-        {Array.from({ length: 6 - players.length }).map((_, index) => (
+        {Array.from({ length: 5 - (players.length - 1) }).map((_, index) => (
           <div
             key={`empty-${index}`}
-            className="absolute w-16 h-16 transform -translate-x-1/2 -translate-y-1/2"
+            className="absolute transform -translate-x-1/2 -translate-y-1/2"
             style={calculatePosition(players.length + index, 6)}
           >
             <div className="w-16 h-16 rounded-full border-2 border-white border-dashed opacity-50" />
