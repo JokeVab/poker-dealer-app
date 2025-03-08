@@ -16,11 +16,11 @@ const GameButton = ({ children, onClick, className = '' }) => {
     setIsIosDevice(isIOS());
   }, []);
 
-  // На iOS делаем кнопки с более контрастным фоном, но без обводки и теней
+  // На iOS делаем кнопки с более темным фоном для хорошей видимости текста, но сохраняем элегантность
   const iosStyles = {
-    backgroundColor: 'rgba(255, 255, 255, 0.15)', // Светлый фон с полупрозрачностью
-    backdropFilter: 'blur(10px)',                 // Эффект размытия
-    borderColor: 'rgba(255, 255, 255, 0.4)',      // Более заметная, но не толстая граница
+    backgroundColor: 'rgba(20, 30, 70, 0.6)', // Темный синий фон с нужной прозрачностью
+    backdropFilter: 'blur(10px)',
+    borderColor: 'rgba(255, 255, 255, 0.4)',
   };
 
   return (

@@ -17,18 +17,18 @@ const GameSetup = () => {
     setIsIosDevice(isIOS());
   }, []);
 
-  // iOS-специфичные стили фона для кнопок - более мягкие и элегантные
+  // iOS-специфичные стили фона для кнопок - более темные для лучшей видимости текста
   const iosBaseStyles = {
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: 'rgba(20, 30, 70, 0.6)', // Темный фон для контраста с белым текстом
     backdropFilter: 'blur(10px)',
     borderColor: 'rgba(255, 255, 255, 0.4)'
   };
 
-  // Стили для активных кнопок на iOS - без резких теней и обводок
+  // Стили для активных кнопок на iOS - темнее, но без резких теней и обводок
   const iosActiveStyles = {
-    backgroundColor: 'rgba(59, 130, 246, 0.3)',
+    backgroundColor: 'rgba(45, 80, 150, 0.7)', // Более насыщенный и темный синий
     boxShadow: '0 0 10px rgba(59, 130, 246, 0.3)',
-    borderColor: 'rgba(59, 130, 246, 0.5)'
+    borderColor: 'rgba(100, 150, 255, 0.6)'
   };
 
   // Константы для значений времени и раздач
