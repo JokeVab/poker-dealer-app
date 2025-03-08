@@ -49,9 +49,11 @@ const AddPlayers = () => {
           try {
             // Попытка загрузить существующую комнату
             setIsCreatingRoom(true);
+            console.log('Loading saved room:', savedRoomCode);
             const roomData = await getRoom(savedRoomCode);
             
             if (roomData) {
+              console.log('Room data loaded:', roomData);
               setRoomCode(savedRoomCode);
               setPlayers(roomData.players || []);
               setIsCreatingRoom(false);
@@ -95,11 +97,13 @@ const AddPlayers = () => {
                 isHost: true
               }],
               status: 'waiting',
-              maxPlayers: 6
+              maxPlayers: 6,
+              created_at: new Date().toISOString()
             };
 
             // Создаем комнату в Firebase
             const roomId = await createRoomInFirebase(roomData);
+            console.log('New room created:', roomId);
             setRoomCode(roomId);
             // Сохраняем код комнаты в localStorage
             localStorage.setItem('roomCode', roomId);

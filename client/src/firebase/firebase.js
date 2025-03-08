@@ -2,14 +2,14 @@ import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, addDoc, doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
+// Конфигурация Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyC7qfNJDF-_K0yVGWNgBP54zxlkBtkS15A",
+  apiKey: "AIzaSyDElgxGzJ2xy1WtQZIhbmi5tUweON_Cy-g",
   authDomain: "poker-dealer-app.firebaseapp.com",
   projectId: "poker-dealer-app",
-  storageBucket: "poker-dealer-app.firebasestorage.app",
-  messagingSenderId: "171291089487",
-  appId: "1:171291089487:web:0988a6b5db88e2924b283a",
-  measurementId: "G-XDGJ0X24TD"
+  storageBucket: "poker-dealer-app.appspot.com",
+  messagingSenderId: "1073688999574",
+  appId: "1:1073688999574:web:16e9b5a3fd2ed30a2f27ef"
 };
 
 // Инициализация Firebase
@@ -17,14 +17,12 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-// Функции для работы с комнатами
+// Создание комнаты в Firebase
 export const createRoomInFirebase = async (roomData) => {
   try {
-    const roomsRef = collection(db, 'rooms');
-    const docRef = await addDoc(roomsRef, {
-      ...roomData,
-      created_at: new Date().toISOString()
-    });
+    const roomsCollection = collection(db, 'rooms');
+    const docRef = await addDoc(roomsCollection, roomData);
+    console.log('Room created with ID:', docRef.id);
     return docRef.id;
   } catch (error) {
     console.error('Error creating room:', error);
@@ -32,15 +30,29 @@ export const createRoomInFirebase = async (roomData) => {
   }
 };
 
-export const getRoomById = async (roomId) => {
+// Обновление списка игроков
+export const updateRoomPlayers = async (roomId, players) => {
   try {
     const roomRef = doc(db, 'rooms', roomId);
-    const roomSnap = await getDoc(roomRef);
+    await updateDoc(roomRef, { players });
+    console.log('Players updated for room:', roomId);
+  } catch (error) {
+    console.error('Error updating players:', error);
+    throw error;
+  }
+};
+
+// Получение данных комнаты по ID
+export const getRoom = async (roomId) => {
+  try {
+    const roomRef = doc(db, 'rooms', roomId);
+    const roomDoc = await getDoc(roomRef);
     
-    if (roomSnap.exists()) {
-      return { id: roomSnap.id, ...roomSnap.data() };
+    if (roomDoc.exists()) {
+      return { id: roomDoc.id, ...roomDoc.data() };
     } else {
-      throw new Error('Room not found');
+      console.log('No room found with ID:', roomId);
+      return null;
     }
   } catch (error) {
     console.error('Error getting room:', error);
@@ -48,21 +60,12 @@ export const getRoomById = async (roomId) => {
   }
 };
 
-export const updateRoomPlayers = async (roomId, players) => {
-  try {
-    const roomRef = doc(db, 'rooms', roomId);
-    await updateDoc(roomRef, { players });
-  } catch (error) {
-    console.error('Error updating room players:', error);
-    throw error;
-  }
-};
-
+// Подписка на обновления комнаты
 export const subscribeToRoom = (roomId, callback) => {
   const roomRef = doc(db, 'rooms', roomId);
-  return onSnapshot(roomRef, (doc) => {
-    if (doc.exists()) {
-      callback({ id: doc.id, ...doc.data() });
+  return onSnapshot(roomRef, (snapshot) => {
+    if (snapshot.exists()) {
+      callback({ id: snapshot.id, ...snapshot.data() });
     }
   });
 };
