@@ -18,8 +18,8 @@ const AddPlayers = () => {
   useEffect(() => {
     const updateTableSize = () => {
       if (tableRef.current) {
-        const containerWidth = Math.min(window.innerWidth - 40, 600); // максимальная ширина 600px
-        const containerHeight = Math.min(containerWidth * 0.6, 360); // соотношение сторон 5:3, максимальная высота 360px
+        const containerWidth = Math.min(window.innerWidth - 80, 550); // Уменьшена максимальная ширина и увеличен отступ
+        const containerHeight = Math.min(containerWidth * 0.6, 330); // Уменьшена максимальная высота
         
         setTableSize({
           width: Math.max(containerWidth, 280), // минимальная ширина 280px
@@ -276,11 +276,11 @@ const AddPlayers = () => {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-indigo-900 via-blue-900 to-gray-900 text-white p-4">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-indigo-900 via-blue-900 to-gray-900 text-white p-6">
       {/* Покерный стол */}
       <div 
         ref={tableRef}
-        className="relative mx-auto my-8 flex-shrink-0"
+        className="relative mx-auto mt-12 mb-8 flex-shrink-0"
         style={{
           width: `${tableSize.width}px`,
           height: `${tableSize.height}px`,
