@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { isIOS } from '../utils/platformUtils';
 
 /**
- * GameButton component для больших, стилизованных кнопок в интерфейсе игры
+ * GameButton component for large, styled buttons used in the game interface
  * @param {Object} props - Component props
  * @param {string} props.children - Button text content
  * @param {Function} props.onClick - Click handler function
@@ -16,29 +16,25 @@ const GameButton = ({ children, onClick, className = '' }) => {
     setIsIosDevice(isIOS());
   }, []);
 
-  // iOS-специфичные стили для улучшения читаемости текста
-  const iosTextStyles = {
-    textShadow: '0 1px 4px rgba(0,0,0,0.8)',
-    fontWeight: 'bold',
-    color: '#FFFFFF'
-  };
+  // Базовый класс для фона
+  const bgClasses = isIosDevice 
+    ? 'from-white/40 to-white/10 backdrop-blur-xl' // Более контрастный фон для iOS
+    : 'from-white/20 to-white/5 backdrop-blur-xl'; // Оригинальный фон для других устройств
 
   return (
     <button
       onClick={onClick}
       className={`w-full py-5 text-xl font-medium text-white
-                  bg-gradient-to-br from-white/20 to-white/5
-                  backdrop-blur-xl
-                  border border-white/30
-                  rounded-2xl
-                  shadow-[inset_0_0_20px_rgba(255,255,255,0.1)]
-                  transition-all duration-300
-                  hover:from-white/30 hover:to-white/10
-                  hover:shadow-[inset_0_0_30px_rgba(255,255,255,0.2),0_10px_30px_rgba(255,255,255,0.1)]
-                  hover:border-white/40
-                  active:transform active:scale-[0.98]
-                  ${className}`}
-      style={isIosDevice ? iosTextStyles : {}}
+                 bg-gradient-to-br ${bgClasses}
+                 border border-white/30
+                 rounded-2xl
+                 shadow-[inset_0_0_20px_rgba(255,255,255,0.1)]
+                 transition-all duration-300
+                 hover:from-white/30 hover:to-white/10
+                 hover:shadow-[inset_0_0_30px_rgba(255,255,255,0.2),0_10px_30px_rgba(255,255,255,0.1)]
+                 hover:border-white/40
+                 active:transform active:scale-[0.98]
+                 ${className}`}
     >
       {children}
     </button>

@@ -17,11 +17,16 @@ const GameSetup = () => {
     setIsIosDevice(isIOS());
   }, []);
 
-  // iOS-специфичные стили текста для улучшения читаемости
-  const iosTextStyles = {
-    textShadow: '0 1px 4px rgba(0,0,0,0.8)',
-    fontWeight: 'bold',
-    color: '#FFFFFF'
+  // iOS-специфичные стили фона для кнопок
+  const iosBaseStyles = {
+    backgroundColor: 'rgba(0, 0, 0, 0.25)',
+    backdropFilter: 'blur(10px)'
+  };
+
+  // Стили для активных кнопок на iOS
+  const iosActiveStyles = {
+    backgroundColor: 'rgba(59, 130, 246, 0.5)', // Более темный синий фон для активных кнопок
+    boxShadow: '0 0 15px rgba(59, 130, 246, 0.5)'
   };
 
   // Константы для значений времени и раздач
@@ -63,10 +68,10 @@ const GameSetup = () => {
     }
   };
 
-  // Дополнительные стили для активных кнопок на iOS
+  // Получаем стили для кнопок в зависимости от состояния и платформы
   const getButtonStyles = (isActive) => {
     if (!isIosDevice) return {};
-    return isActive ? iosTextStyles : { color: '#FFFFFF', textShadow: '0 1px 2px rgba(0,0,0,0.5)' };
+    return isActive ? iosActiveStyles : iosBaseStyles;
   };
 
   return (
@@ -93,7 +98,7 @@ const GameSetup = () => {
                      bg-white/5 text-white/30 font-semibold cursor-pointer
                      hover:bg-white/10 transition-all duration-300
                      active:scale-95 active:bg-white/20 touch-none"
-            style={isIosDevice ? { textShadow: '0 1px 3px rgba(0,0,0,0.7)' } : {}}
+            style={isIosDevice ? { ...iosBaseStyles, opacity: 0.5 } : {}}
             onClick={handleCashClick}
           >
             Cash
@@ -189,7 +194,7 @@ const GameSetup = () => {
             onClick={handleBack}
             className="text-white/60 transition-colors duration-300
                      hover:text-white active:text-white/40"
-            style={isIosDevice ? { textShadow: '0 1px 3px rgba(0,0,0,0.7)', color: 'white' } : {}}
+            style={isIosDevice ? { textShadow: '0 1px 2px rgba(0,0,0,0.7)' } : {}}
           >
             Back
           </button>
@@ -202,7 +207,7 @@ const GameSetup = () => {
             onClick={handleNext}
             className="text-blue-400 transition-colors duration-300
                      hover:text-blue-300 active:text-blue-500"
-            style={isIosDevice ? { textShadow: '0 1px 3px rgba(0,0,0,0.7)', color: '#60A5FA' } : {}}
+            style={isIosDevice ? { textShadow: '0 1px 2px rgba(0,0,0,0.7)' } : {}}
           >
             Next
           </button>

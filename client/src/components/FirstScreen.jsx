@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import GameButton from "./GameButton";
+import { isIOS } from '../utils/platformUtils';
 
 /**
  * FirstScreen component that displays the initial game screen with join and host options
@@ -8,9 +9,13 @@ import GameButton from "./GameButton";
 const FirstScreen = () => {
   const navigate = useNavigate();
   const [userName, setUserName] = useState('');
+  const [isIosDevice, setIsIosDevice] = useState(false);
   
-  // Получаем данные из Telegram WebApp
+  // Получаем данные из Telegram WebApp и определяем платформу
   useEffect(() => {
+    // Определяем iOS устройство
+    setIsIosDevice(isIOS());
+    
     const tg = window.Telegram?.WebApp;
     if (tg) {
       // Меняем тему приложения в зависимости от темы Telegram
@@ -71,7 +76,7 @@ const FirstScreen = () => {
       </div>
 
       {/* Нижний текст */}
-      <div className="mt-6 text-white/60 text-sm">
+      <div className="mt-6 text-white/60 text-sm" style={isIosDevice ? { textShadow: '0 1px 2px rgba(0,0,0,0.7)' } : {}}>
         Ready to play?
       </div>
     </div>
