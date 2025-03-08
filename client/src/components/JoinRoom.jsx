@@ -83,14 +83,17 @@ const JoinRoom = () => {
       return;
     }
 
+    // Очищаем код от возможных пробелов и лишних символов
+    const cleanedCode = code.trim();
+    
     setIsLoading(true);
     setError(null);
-    console.log('Присоединение к комнате с кодом:', code);
+    console.log('Присоединение к комнате с кодом:', cleanedCode);
 
     try {
       // Сначала получаем информацию о комнате
       console.log('Запрашиваем информацию о комнате...');
-      const roomInfo = await getRoom(code);
+      const roomInfo = await getRoom(cleanedCode);
 
       if (!roomInfo) {
         console.error('Комната не найдена');
@@ -111,7 +114,7 @@ const JoinRoom = () => {
 
       // Присоединяемся к комнате
       console.log('Отправляем запрос на присоединение...');
-      const joinResult = await joinRoom(code, userData);
+      const joinResult = await joinRoom(cleanedCode, userData);
 
       if (!joinResult) {
         console.error('Ошибка при присоединении к комнате');
@@ -124,11 +127,11 @@ const JoinRoom = () => {
       if (roomInfo.settings && roomInfo.settings.showDealer === 'table') {
         console.log('Переход на экран выбора роли');
         // Переход на экран выбора роли (правильный маршрут: /role-selection)
-        navigate('/role-selection', { state: { roomCode: code, roomInfo } });
+        navigate('/role-selection', { state: { roomCode: cleanedCode, roomInfo } });
       } else {
         console.log('Переход в покерную комнату как игрок');
         // Сразу в комнату как Player (правильный маршрут: /poker-room)
-        navigate('/poker-room', { state: { roomCode: code, role: 'player', roomInfo } });
+        navigate('/poker-room', { state: { roomCode: cleanedCode, role: 'player', roomInfo } });
       }
     } catch (err) {
       console.error('Error joining room:', err);
@@ -183,10 +186,10 @@ const JoinRoom = () => {
               type="text"
               value={roomCode}
               onChange={(e) => setRoomCode(e.target.value)}
-              placeholder="Enter 6-digit code"
+              placeholder="Enter room code"
               className="w-full bg-white/10 border border-white/30 rounded-lg px-4 py-3 text-white"      
               style={iosInputStyles}
-              maxLength={6}
+              maxLength={32}
             />
           </div>
 

@@ -236,8 +236,8 @@ const PokerRoom = () => {
 
   // Генерация кода/ссылки для приглашения (только для хоста)
   const getInviteLink = () => {
-    // Используем параметр code вместо start для совместимости с JoinRoom
-    return `https://t.me/PokerDealerGameBot?code=${roomCode}`;
+    const baseUrl = window.location.origin;
+    return `${baseUrl}/join-room?code=${roomCode}`;
   };
 
   // Функция копирования кода комнаты в буфер обмена
