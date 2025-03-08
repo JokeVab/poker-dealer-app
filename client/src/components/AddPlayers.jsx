@@ -381,23 +381,15 @@ const AddPlayers = () => {
 
       {/* Секция приглашения игроков */}
       <div className="mt-auto w-full max-w-md mx-auto">
-        <h2 className="text-center text-2xl mb-6 font-bold">Invite Players</h2>
-        
-        <div className="mb-2 font-medium ml-1">Room Code:</div>
+        <div className="mb-2 font-medium ml-1">Share Room Code:</div>
         
         <div className="flex items-center justify-center gap-2 mb-5">
           <div 
-            className="flex-1 bg-gray-800 rounded-lg border border-gray-600 px-3 overflow-hidden h-12 flex items-center"
+            onClick={handleCopyCode} 
+            className="flex-1 bg-gray-800 rounded-lg border border-gray-600 px-3 overflow-hidden h-12 flex items-center cursor-pointer hover:bg-gray-700 transition-colors"
             style={{ maxWidth: '280px' }}
           >
-            <span className="text-lg font-mono truncate">{roomCode}</span>
-            <button
-              onClick={handleCopyCode}
-              className="ml-auto p-2" 
-              aria-label="Copy code"
-            >
-              <span className="text-xl">📋</span>
-            </button>
+            <span className="text-lg font-mono truncate w-full text-center">{roomCode}</span>
           </div>
           
           <button
