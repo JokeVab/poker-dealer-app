@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createRoomInFirebase, updateRoomPlayers } from '../firebase/firebase';
 
@@ -11,6 +11,27 @@ const AddPlayers = () => {
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [showDeleteZone, setShowDeleteZone] = useState(false);
   const [error, setError] = useState(null);
+  const tableRef = useRef(null);
+  const [tableSize, setTableSize] = useState({ width: 0, height: 0 });
+  
+  // Отслеживание размера экрана для адаптивного стола
+  useEffect(() => {
+    const updateTableSize = () => {
+      if (tableRef.current) {
+        const containerWidth = Math.min(window.innerWidth - 40, 600); // максимальная ширина 600px
+        const containerHeight = Math.min(containerWidth * 0.6, 360); // соотношение сторон 5:3, максимальная высота 360px
+        
+        setTableSize({
+          width: Math.max(containerWidth, 280), // минимальная ширина 280px
+          height: Math.max(containerHeight, 168) // минимальная высота 168px
+        });
+      }
+    };
+    
+    updateTableSize();
+    window.addEventListener('resize', updateTableSize);
+    return () => window.removeEventListener('resize', updateTableSize);
+  }, []);
 
   useEffect(() => {
     const initializeRoom = async () => {
@@ -84,6 +105,84 @@ const AddPlayers = () => {
     initializeRoom();
   }, [isCreatingRoom, roomCode]);
 
+  // Расчет позиции игрока по эллипсу стола
+  const calculatePosition = (index, totalPositions) => {
+    // Общее количество позиций (включая пустые)
+    const maxPositions = 6; 
+    
+    // Если игрок хост, то ставим его внизу
+    const isHost = players[index]?.isHost;
+    
+    // Массив всех игроков, кроме хоста
+    const nonHostPlayers = players.filter(p => !p.isHost);
+    
+    // Ширина и высота эллипса стола
+    const tableWidth = tableSize.width * 0.9;  // 90% от ширины контейнера
+    const tableHeight = tableSize.height * 0.9; // 90% от высоты контейнера
+    
+    // Радиусы эллипса
+    const a = tableWidth / 2 - 30; // Горизонтальный радиус (минус отступ для аватарок)
+    const b = tableHeight / 2 - 30; // Вертикальный радиус
+    
+    // Центр эллипса
+    const centerX = tableWidth / 2;
+    const centerY = tableHeight / 2;
+    
+    if (isHost) {
+      // Хост всегда внизу по центру
+      return {
+        left: centerX,
+        top: centerY + b * 0.8 // Немного ближе к центру, чем край эллипса
+      };
+    }
+
+    // Для остальных игроков распределяем позиции по эллипсу
+    
+    // Находим позицию этого игрока среди не-хостов
+    const nonHostIndex = nonHostPlayers.findIndex(p => p.id === players[index]?.id);
+    
+    // Для пустых слотов
+    const emptySlotIndex = index - players.length;
+    
+    // Определяем позицию на эллипсе (от 0 до 5)
+    let positionIndex;
+    
+    if (nonHostIndex >= 0) {
+      // Для реальных игроков (не хостов)
+      positionIndex = nonHostIndex;
+    } else if (emptySlotIndex >= 0) {
+      // Для пустых слотов
+      // Находим свободные позиции
+      const takenPositions = nonHostPlayers.map((_, i) => i);
+      const availablePositions = Array.from({length: 5}).map((_, i) => i) // 5 позиций (исключая хоста)
+        .filter(pos => !takenPositions.includes(pos));
+      
+      if (emptySlotIndex < availablePositions.length) {
+        positionIndex = availablePositions[emptySlotIndex];
+      } else {
+        return { left: 0, top: 0 }; // Скрываем лишние пустые слоты
+      }
+    } else {
+      return { left: 0, top: 0 }; // Скрываем слот, если не определен
+    }
+
+    // Равномерно распределяем позиции по верхней части эллипса (от PI до 2*PI)
+    // Позиция 0 - верхняя левая, позиция 4 - верхняя правая
+    let angle;
+    
+    if (positionIndex === 0) angle = Math.PI + Math.PI/6; // Верхняя левая
+    else if (positionIndex === 1) angle = Math.PI + Math.PI/3; // Верхняя левая-центр
+    else if (positionIndex === 2) angle = Math.PI + Math.PI/2; // Верхняя центр
+    else if (positionIndex === 3) angle = Math.PI + 2*Math.PI/3; // Верхняя правая-центр
+    else if (positionIndex === 4) angle = Math.PI + 5*Math.PI/6; // Верхняя правая
+    
+    // Вычисляем координаты на эллипсе
+    const x = centerX + a * Math.cos(angle);
+    const y = centerY + b * Math.sin(angle);
+    
+    return { left: x, top: y };
+  };
+
   const handleCopyCode = () => {
     if (roomCode) {
       navigator.clipboard.writeText(roomCode).then(() => {
@@ -99,71 +198,6 @@ const AddPlayers = () => {
     const inviteLink = `https://t.me/your_bot_name?start=${roomCode}`;
     const text = 'Join my poker game! Click the link to start playing!';
     window.Telegram.WebApp.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(text)}`);
-  };
-
-  const calculatePosition = (index, totalPlayers) => {
-    // Новая расстановка: 3 вверху, 2 по бокам, хост внизу посередине
-    const containerWidth = 300; // ширина контейнера
-    const containerHeight = 300; // высота контейнера
-    const topY = 40; // верхний отступ для верхних позиций
-    const middleY = containerHeight / 2 - 30; // средняя линия по высоте (уменьшен отступ)
-    const bottomY = containerHeight - 100; // нижняя позиция для хоста (увеличен отступ снизу)
-    
-    // Положение игроков в верхнем ряду (3 игрока)
-    const topPositions = [
-      { left: containerWidth * 0.25, top: topY }, // левый верхний
-      { left: containerWidth * 0.5, top: topY }, // центральный верхний
-      { left: containerWidth * 0.75, top: topY } // правый верхний
-    ];
-    
-    // Положение игроков по бокам в среднем ряду (2 игрока)
-    const middlePositions = [
-      { left: 30, top: middleY }, // левый средний
-      { left: containerWidth - 30, top: middleY } // правый средний
-    ];
-    
-    // Положение хоста (внизу посередине)
-    const hostPosition = { left: containerWidth / 2, top: bottomY };
-
-    // Проверяем, является ли игрок хостом
-    if (players[index]?.isHost) {
-      return hostPosition;
-    }
-
-    // Распределяем места для обычных игроков
-    const nonHostPlayers = players.filter(p => !p.isHost);
-    const nonHostIndex = nonHostPlayers.findIndex(p => p.id === players[index]?.id);
-    
-    if (nonHostIndex < 0) {
-      // Для пустых слотов
-      // Индекс пустого слота в общем списке пустых слотов
-      const emptySlots = Array.from({ length: 5 }).map((_, i) => i); // Всего 5 мест (не считая хоста)
-      const occupiedSlots = nonHostPlayers.map((p, i) => i);
-      const availableSlots = emptySlots.filter(slot => !occupiedSlots.includes(slot));
-      
-      // Определяем, какой по счету это пустой слот
-      const emptySlotIndex = index - players.length;
-      
-      // Распределяем позиции для пустых слотов
-      const allPositions = [...topPositions, ...middlePositions];
-      
-      if (emptySlotIndex < availableSlots.length && emptySlotIndex >= 0) {
-        const slotPosition = availableSlots[emptySlotIndex];
-        return allPositions[slotPosition];
-      }
-      
-      // Если индекс выходит за пределы, возвращаем последнюю доступную позицию
-      return allPositions[availableSlots[availableSlots.length - 1] || 0];
-    }
-    
-    // Для реальных игроков (не хостов)
-    const allPositions = [...topPositions, ...middlePositions];
-    if (nonHostIndex < allPositions.length) {
-      return allPositions[nonHostIndex];
-    }
-    
-    // Если больше позиций нет, возвращаем последнюю
-    return allPositions[allPositions.length - 1] || hostPosition;
   };
 
   const handlePlayerClick = (player) => {
@@ -231,74 +265,90 @@ const AddPlayers = () => {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-blue-900 to-gray-900 text-white p-4">
-      {/* Фон стола */}
-      <div className="relative w-[300px] h-[300px] mx-auto my-8 rounded-full bg-gradient-to-br from-green-900 to-green-800 border-4 border-gray-800 shadow-xl">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-gray-900 to-black text-white p-4">
+      {/* Покерный стол */}
+      <div 
+        ref={tableRef}
+        className="relative mx-auto my-8 flex-shrink-0"
+        style={{
+          width: `${tableSize.width}px`,
+          height: `${tableSize.height}px`,
+          overflow: 'visible'
+        }}
+      >
+        {/* Овальный стол */}
+        <div 
+          className="absolute inset-0 rounded-[45%] bg-gradient-to-br from-green-800 to-green-900 border-[8px] border-gray-800 shadow-xl"
+          style={{ 
+            width: '100%', 
+            height: '100%'
+          }}
+        />
+        
         {/* Игроки */}
-        {players.map((player, index) => (
-          <div
-            key={player.id}
-            className={`absolute transform -translate-x-1/2 -translate-y-1/2 
-                      ${selectedPlayer?.id === player.id ? 'z-50' : 'z-0'}
-                      ${player.isHost ? '' : 'cursor-move'}
-                      flex flex-col items-center`}
-            style={calculatePosition(index, players.length)}
-            onTouchStart={() => handlePlayerClick(player)}
-            onMouseDown={() => handlePlayerClick(player)}
-            onTouchEnd={handlePlayerRelease}
-            onMouseUp={handlePlayerRelease}
-          >
-            <div className="relative">
-              {player.avatar ? (
-                <img
-                  src={player.avatar}
-                  alt={player.name}
-                  className={`rounded-full border-2 border-white ${player.isHost ? 'w-20 h-20' : 'w-16 h-16'}`}
-                  draggable="false"
-                />
-              ) : (
-                <div className={`rounded-full bg-gray-600 border-2 border-white flex items-center justify-center 
-                               ${player.isHost ? 'w-20 h-20 text-xl' : 'w-16 h-16 text-lg'}`}>
-                  {player.name[0]}
-                </div>
-              )}
-              {player.isHost && (
-                <div className="absolute -bottom-2 -right-2 w-7 h-7 bg-white border-2 border-gray-800 rounded-full flex items-center justify-center text-black font-bold text-sm shadow-md">
-                  D
-                </div>
-              )}
+        {players.map((player, index) => {
+          const position = calculatePosition(index, players.length);
+          return (
+            <div
+              key={player.id}
+              className={`absolute transform -translate-x-1/2 -translate-y-1/2 
+                        ${selectedPlayer?.id === player.id ? 'z-50' : 'z-0'}
+                        ${player.isHost ? '' : 'cursor-move'}
+                        flex flex-col items-center`}
+              style={{
+                left: `${position.left}px`,
+                top: `${position.top}px`
+              }}
+              onTouchStart={() => handlePlayerClick(player)}
+              onMouseDown={() => handlePlayerClick(player)}
+              onTouchEnd={handlePlayerRelease}
+              onMouseUp={handlePlayerRelease}
+            >
+              <div className="relative">
+                {player.avatar ? (
+                  <img
+                    src={player.avatar}
+                    alt={player.name}
+                    className={`rounded-full border-2 border-white ${player.isHost ? 'w-20 h-20' : 'w-16 h-16'}`}
+                    draggable="false"
+                  />
+                ) : (
+                  <div className={`rounded-full bg-gray-600 border-2 border-white flex items-center justify-center 
+                                 ${player.isHost ? 'w-20 h-20 text-xl' : 'w-16 h-16 text-lg'}`}>
+                    {player.name[0]}
+                  </div>
+                )}
+                {player.isHost && (
+                  <div className="absolute -bottom-2 -right-2 w-7 h-7 bg-white border-2 border-gray-800 rounded-full flex items-center justify-center text-black font-bold text-sm shadow-md">
+                    D
+                  </div>
+                )}
+              </div>
+              <div className="mt-2 text-center text-sm max-w-[80px] truncate font-medium bg-black/60 px-2 py-0.5 rounded">
+                {player.username || player.name}
+              </div>
             </div>
-            <div className="mt-2 text-center text-sm max-w-[80px] truncate font-medium bg-black/30 px-2 py-0.5 rounded">
-              {player.username || player.name}
-            </div>
-          </div>
-        ))}
+          );
+        })}
         
         {/* Пустые слоты */}
-        {Array.from({ length: 5 - (players.filter(p => !p.isHost).length) }).map((_, index) => (
-          <div
-            key={`empty-${index}`}
-            className="absolute transform -translate-x-1/2 -translate-y-1/2"
-            style={calculatePosition(players.length + index, 6)}
-          >
-            <div className="w-16 h-16 rounded-full border-2 border-white border-dashed opacity-30" />
-          </div>
-        ))}
+        {Array.from({ length: 5 - (players.filter(p => !p.isHost).length) }).map((_, index) => {
+          const position = calculatePosition(players.length + index, 6);
+          return (
+            <div
+              key={`empty-${index}`}
+              className="absolute transform -translate-x-1/2 -translate-y-1/2"
+              style={{
+                left: `${position.left}px`,
+                top: `${position.top}px`,
+                display: position.left === 0 && position.top === 0 ? 'none' : 'block'
+              }}
+            >
+              <div className="w-16 h-16 rounded-full border-2 border-white border-dashed opacity-30" />
+            </div>
+          );
+        })}
       </div>
-
-      {/* Зона удаления */}
-      {showDeleteZone && (
-        <div
-          id="deleteZone"
-          className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
-                   w-32 h-32 rounded-full border-4 border-red-500 border-dashed
-                   flex items-center justify-center bg-red-500/20 z-40"
-        >
-          <svg className="w-12 h-12 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-          </svg>
-        </div>
-      )}
 
       {/* Секция приглашения игроков */}
       <div className="mt-auto">
@@ -344,6 +394,20 @@ const AddPlayers = () => {
           </button>
         </div>
       </div>
+
+      {/* Зона удаления */}
+      {showDeleteZone && (
+        <div
+          id="deleteZone"
+          className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
+                   w-32 h-32 rounded-full border-4 border-red-500 border-dashed
+                   flex items-center justify-center bg-red-500/20 z-40"
+        >
+          <svg className="w-12 h-12 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+        </div>
+      )}
 
       {/* Уведомление о копировании */}
       {showCopiedToast && (
