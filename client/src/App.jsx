@@ -4,6 +4,9 @@ import FirstScreen from './components/FirstScreen';
 import CreateRoom from './components/CreateRoom';
 import GameSetup from './components/GameSetup';
 import AddPlayers from './components/AddPlayers';
+import JoinRoom from './components/JoinRoom';
+import RoleSelection from './components/RoleSelection';
+import PokerRoom from './components/PokerRoom';
 
 function App() {
   // Инициализация Telegram WebApp
@@ -41,7 +44,9 @@ function App() {
         <Route path="/game-setup" element={<GameSetup />} />
         <Route path="/add-players" element={<AddPlayers />} />
         <Route path="/create-room" element={<CreateRoom />} />
-        <Route path="/join-game" element={<div>Join Game Component (coming soon)</div>} />
+        <Route path="/join-room" element={<JoinRoom />} />
+        <Route path="/role-selection" element={<RoleSelection />} />
+        <Route path="/poker-room" element={<PokerRoom />} />
       </Routes>
     </Router>
   );
