@@ -236,8 +236,11 @@ const PokerRoom = () => {
 
   // Генерация кода/ссылки для приглашения (только для хоста)
   const getInviteLink = () => {
-    const baseUrl = window.location.origin;
-    return `${baseUrl}/join-room?code=${roomCode}`;
+    // Имя бота Telegram, который обрабатывает запросы
+    const botName = 'PokerDealerGameBot';
+    
+    // Создаем ссылку с параметром start для Telegram WebApp
+    return `https://t.me/${botName}?start=${roomCode}`;
   };
 
   // Функция копирования кода комнаты в буфер обмена

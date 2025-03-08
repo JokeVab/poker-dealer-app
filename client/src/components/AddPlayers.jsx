@@ -230,16 +230,20 @@ const AddPlayers = () => {
   };
 
   const handleTelegramShare = () => {
-    if (roomCode) {
-      // Создаем URL приложения с кодом комнаты для присоединения
-      const appUrl = window.location.origin;
-      const inviteLink = `${appUrl}/join-room?code=${roomCode}`;
+    if (roomCode && window.Telegram?.WebApp) {
+      // Имя бота Telegram, который обрабатывает запросы
+      const botName = 'PokerDealerGameBot';
+      
+      // Создаем ссылку с параметром start для Telegram WebApp
+      const inviteLink = `https://t.me/${botName}?start=${roomCode}`;
       
       // Текст приглашения
       const text = `Join my poker game! Click the link to start playing!`;
       
       // Используем WebApp для открытия ссылки на Telegram с параметрами
       window.Telegram.WebApp.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(text)}`);
+    } else {
+      console.error('Telegram WebApp не доступен или код комнаты не определен');
     }
   };
 

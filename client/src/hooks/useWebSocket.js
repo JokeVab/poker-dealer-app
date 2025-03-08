@@ -63,15 +63,47 @@ export const useWebSocket = () => {
 
   // Метод для получения информации о комнате по коду
   const getRoom = async (roomCode) => {
+    if (!roomCode) {
+      console.error('Room code is undefined or empty');
+      throw new Error('Room code is required');
+    }
+    
+    console.log(`Запрос данных о комнате: ${roomCode}`);
     try {
-      const response = await fetch(`${API_URL}/api/rooms/${roomCode}`);
+      // Добавляем таймаут запроса
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+      
+      const response = await fetch(`${API_URL}/api/rooms/${roomCode}`, {
+        signal: controller.signal,
+        headers: {
+          'Accept': 'application/json',
+          'Cache-Control': 'no-cache'
+        }
+      });
+      
+      clearTimeout(timeoutId);
+      
+      // Логируем статус ответа
+      console.log(`Статус ответа: ${response.status} ${response.statusText}`);
       
       if (!response.ok) {
-        console.error('Failed to get room:', response.status, response.statusText);
-        throw new Error('Room not found');
+        const errorText = await response.text().catch(() => 'Unknown error');
+        console.error('Failed to get room:', response.status, response.statusText, errorText);
+        throw new Error(`Room not found (status: ${response.status})`);
       }
       
-      return await response.json();
+      // Логируем текст ответа перед парсингом JSON
+      const responseText = await response.text();
+      console.log('Ответ сервера:', responseText);
+      
+      try {
+        const data = JSON.parse(responseText);
+        return data;
+      } catch (parseError) {
+        console.error('Error parsing response JSON:', parseError);
+        throw new Error('Invalid server response format');
+      }
     } catch (err) {
       console.error('Error getting room:', err);
       setError(err.message);

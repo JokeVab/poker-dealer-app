@@ -91,9 +91,47 @@ const JoinRoom = () => {
     console.log('Присоединение к комнате с кодом:', cleanedCode);
 
     try {
+      // Проверяем соединение с сервером
+      console.log('Проверяем соединение с сервером...');
+      try {
+        const response = await fetch(`${process.env.NODE_ENV === 'production' ? 'https://poker-dealer-api.vercel.app' : 'http://localhost:3001'}/health`, { 
+          method: 'GET',
+          headers: { 'Accept': 'application/json' },
+          // Таймаут 5 секунд
+          signal: AbortSignal.timeout(5000)
+        });
+        
+        if (!response.ok) {
+          console.warn('Сервер доступен, но вернул ошибку:', response.status);
+        } else {
+          console.log('Сервер доступен');
+        }
+      } catch (healthError) {
+        console.warn('Не удалось проверить доступность сервера:', healthError);
+        // Не выходим из функции, продолжаем попытку присоединения
+      }
+
       // Сначала получаем информацию о комнате
       console.log('Запрашиваем информацию о комнате...');
-      const roomInfo = await getRoom(cleanedCode);
+      let roomInfo = null;
+      let attempts = 0;
+      const maxAttempts = 3;
+      
+      while (!roomInfo && attempts < maxAttempts) {
+        attempts++;
+        try {
+          roomInfo = await getRoom(cleanedCode);
+          break;
+        } catch (roomErr) {
+          console.warn(`Попытка ${attempts}/${maxAttempts} получить данные о комнате не удалась:`, roomErr);
+          // Если это последняя попытка, пробрасываем ошибку дальше
+          if (attempts === maxAttempts) {
+            throw roomErr;
+          }
+          // Ждем перед следующей попыткой
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+      }
 
       if (!roomInfo) {
         console.error('Комната не найдена');
@@ -135,7 +173,7 @@ const JoinRoom = () => {
       }
     } catch (err) {
       console.error('Error joining room:', err);
-      setError(err.message || 'Failed to join room');
+      setError(err.message || 'Failed to join room. Check your internet connection and try again.');
     } finally {
       setIsLoading(false);
     }
