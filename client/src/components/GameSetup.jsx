@@ -81,6 +81,11 @@ const GameSetup = () => {
     color: 'rgba(255, 255, 255, 0.8)'
   } : {};
 
+  // Стили специально для кнопки Next на iOS - голубой цвет
+  const iosNextStyles = isIosDevice ? {
+    color: '#60A5FA' // Голубой цвет для кнопки Next на iOS
+  } : {};
+
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-[#4B6CB7] to-[#182848] flex flex-col items-center justify-center p-6">
       <div className="bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-xl 
@@ -147,7 +152,7 @@ const GameSetup = () => {
 
           <div className="h-10 flex items-center justify-center">
             <span className="text-white/80 text-3xl leading-none">
-              {timeMode === 'Time' ? '⏱' : '🃏'}
+              {timeMode === 'Time' ? '⏱' : '♠'}
             </span>
           </div>
 
@@ -214,7 +219,7 @@ const GameSetup = () => {
             onClick={handleNext}
             className="text-blue-400 transition-colors duration-300
                      hover:text-blue-300 active:text-blue-500"
-            style={iosNavStyles}
+            style={iosNextStyles}
           >
             Next
           </button>
